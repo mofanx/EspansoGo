@@ -3,7 +3,7 @@
 		<TargetFrameworks>net9.0-android35.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
-		<AndroidSupportedAbis>armeabi-v7a;arm64-v8a;x86;x86_64</AndroidSupportedAbis>
+		<RuntimeIdentifiers>android-arm;android-arm64;android-x86;android-x64</RuntimeIdentifiers>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>Expandroid</RootNamespace>
 		<UseMaui>true</UseMaui>
@@ -49,9 +49,12 @@
 		<AndroidPackageFormat>apk</AndroidPackageFormat>
 		<AndroidCreatePackagePerAbi>True</AndroidCreatePackagePerAbi>
 		<AndroidLinkTool>r8</AndroidLinkTool>
+		<AndroidUseAapt2>True</AndroidUseAapt2>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android35.0|AnyCPU'">
 		<AndroidCreatePackagePerAbi>True</AndroidCreatePackagePerAbi>
+		<AndroidUseAapt2>True</AndroidUseAapt2>
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
 	</PropertyGroup>
 	<ItemGroup>
 		<!-- App Icon -->
