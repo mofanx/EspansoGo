@@ -325,6 +325,16 @@ public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.
             e.Source.PerformAction(Android.Views.Accessibility.Action.SetSelection, CursorArgs);
         }
     }
+    private void ShowTemporaryForm()
+    {
+        windowManager.AddView(floatView, layoutParams);
+    }
+
+    private void RemoveTemporaryForm()
+    {
+        windowManager.RemoveView(floatView);
+        rowContainer.RemoveAllViewsInLayout();
+    }
 
     private void AddTextView(LinearLayout row, string word)
     {
@@ -358,7 +368,7 @@ public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.
         }
     }
 
-    private static async Task<string> ParseItemAsync(Var item, string replace)
+    private async Task<string> ParseItemAsync(Var item, string replace)
     {
         try
         {
@@ -376,8 +386,10 @@ public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.
                     case "clipboard":
                         //if (Clipboard.Default.HasText)
                         {
+                            ShowTemporaryForm();
                             var clip = await Clipboard.Default.GetTextAsync();
                             replace = replace.Replace(WrapName(item.Name), clip);
+                            RemoveTemporaryForm();
                         }
                         break;
                     case "date":
