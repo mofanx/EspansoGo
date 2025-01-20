@@ -12,6 +12,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Expandroid.Models;
 using System.Security.Cryptography;
 using System.Text.Json;
+using Microsoft.Maui.ApplicationModel.DataTransfer;
 
 [Service(Exported = false, Label = "Expandroid", Permission = Manifest.Permission.BindAccessibilityService)]
 [IntentFilter(["android.accessibilityservice.AccessibilityService"])]
@@ -102,10 +103,12 @@ public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.
                     string expansionStr = Text[0].ToString();
                     string og = expansionStr; //not modified
                     CheckAndUpdateCursorArgs(expansionStr, sendIfCursorFound: true, e);
-                    var arr = expansionStr.Split(_separators, StringSplitOptions.RemoveEmptyEntries);
                     bool send = false;
                     bool storeOg = true;
-                    var text = arr[^1];
+                    int cursorPosition = e.Source.TextSelectionStart;
+                    var textBeforeCursor = expansionStr[..cursorPosition];
+                    var arr = textBeforeCursor.Split(_separators, StringSplitOptions.RemoveEmptyEntries);
+                    var text = arr.Length > 0 ? arr[^1] : string.Empty;
                     if (previousOg == og)
                     {
                         return;
@@ -324,6 +327,16 @@ public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.
             e.Source.PerformAction(Android.Views.Accessibility.Action.SetSelection, CursorArgs);
         }
     }
+    private void ShowTemporaryForm()
+    {
+        windowManager.AddView(floatView, layoutParams);
+    }
+
+    private void RemoveTemporaryForm()
+    {
+        windowManager.RemoveView(floatView);
+        rowContainer.RemoveAllViewsInLayout();
+    }
 
     private void AddTextView(LinearLayout row, string word)
     {
@@ -357,7 +370,7 @@ public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.
         }
     }
 
-    private static async Task<string> ParseItemAsync(Var item, string replace)
+    private async Task<string> ParseItemAsync(Var item, string replace)
     {
         try
         {
@@ -375,8 +388,10 @@ public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.
                     case "clipboard":
                         //if (Clipboard.Default.HasText)
                         {
+                            ShowTemporaryForm();
                             var clip = await Clipboard.Default.GetTextAsync();
                             replace = replace.Replace(WrapName(item.Name), clip);
+                            RemoveTemporaryForm();
                         }
                         break;
                     case "date":
