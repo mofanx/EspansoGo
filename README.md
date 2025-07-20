@@ -32,7 +32,7 @@ I've decided that I will only update the app once every 6 months. This is due to
 The app will surely receive updates for all major android releases. Thank you for using the app and all the stars :D
 
 # Notes 
-Espanso configuration YML files will take a few tries to parse correctly. Try removing some matches, and make sure it's compliant with the YML specs. Some working examples are provided below for your convenience to copy and paste. Please also note that only the following extensions are supported -> date, clipboard, random and echo. Finally, note that not all espanso/rust chrono date time formats are supported. Supported formats are,
+Espanso configuration YML files will take a few tries to parse correctly. Try removing some matches, and make sure it's compliant with the YML specs. Some working examples can be found <a href="https://github.com/lochidev/TextComparePro/blob/master/examples/config.yml">here</a>. Please also note that only the following extensions are supported -> date, clipboard, random and echo. Finally, note that not all espanso/rust chrono date time formats are supported. Supported formats are,
 - %Y, %m, %b, %B, %h, %d, %e, %a, %A, %j, %w, %u, %D, %F, %H, %I, %p, %M, %S, %R, %T, %r
 
 You can further customize date time formats by referring to the C# DateTime.ToString() method documentation from Microsoft.
