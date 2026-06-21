@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v4
@@ -22,8 +22,8 @@ jobs:
       with:
         dotnet-version: '9.0.x'
     
-    - name: Install MAUI Workload
-      run: dotnet workload install maui
+    - name: Install MAUI Android Workload
+      run: dotnet workload install maui-android --temp-dir "${{ runner.temp }}"
     
     - name: Restore dependencies
       run: dotnet restore src/Expandroid.csproj
