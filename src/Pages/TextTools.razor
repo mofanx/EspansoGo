@@ -1,0 +1,192 @@
+@inject ILocalizationService localizationService
+@inject IDialogService dialogService
+@inject ISnackbar Snackbar
+
+<MudTextField T="string" HelperText="@localizationService.GetString("Length")" Counter="textList[0].Length" Label="@localizationService.GetString("Text1")" Variant="Variant.Text" @bind-Value="@textList[0]" Lines="5" />
+<MudTextField T="string" HelperText="@localizationService.GetString("Length")" Counter="textList[1].Length" Label="@localizationService.GetString("Text2")" Variant="Variant.Text" @bind-Value="@textList[1]" Lines="5" />
+<MudTabs @ref="@Tabs" class="mt-3" Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-2">
+    <MudTabPanel Text="@localizationService.GetString("Basic")">
+        <div class="d-flex flex-wrap">
+            <MudCheckBox Label="@localizationService.GetString("Compare")" @bind-Value="@compare" Color="Color.Primary"></MudCheckBox>
+            <MudCheckBox Label="@localizationService.GetString("IgnoreCase")" @bind-Value="@ignoreCase" Color="Color.Secondary"></MudCheckBox>
+            <MudCheckBox Label="@localizationService.GetString("CompareLength")" @bind-Value="@lengthCompare" Color="Color.Warning"></MudCheckBox>
+            <MudCheckBox Label="@localizationService.GetString("Contains")" @bind-Value="@contains" Color="Color.Primary"></MudCheckBox>
+            <MudCheckBox Label="@localizationService.GetString("Replace")" @bind-Value="@replace" Color="Color.Secondary"></MudCheckBox>
+            <MudCheckBox Label="@localizationService.GetString("ToUpper")" @bind-Value="@toUpper" Color="Color.Warning"></MudCheckBox>
+            <MudCheckBox Label="@localizationService.GetString("ToLower")" @bind-Value="@toLower" Color="Color.Tertiary"></MudCheckBox>
+        </div>
+    </MudTabPanel>
+    <MudTabPanel Text="@localizationService.GetString("DiscordMarkdown")">
+        <div class="d-flex flex-wrap">
+            <MudCheckBox Label="@localizationService.GetString("Bold")" @bind-Value="@makeBold" Color="Color.Primary"></MudCheckBox>
+            <MudCheckBox Label="@localizationService.GetString("Italic")" @bind-Value="@makeItalic" Color="Color.Secondary"></MudCheckBox>
+            <MudCheckBox Label="@localizationService.GetString("Underline")" @bind-Value="@makeUnderline" Color="Color.Warning"></MudCheckBox>
+            <MudCheckBox Label="@localizationService.GetString("Strikethrough")" @bind-Value="@makeStrike" Color="Color.Primary"></MudCheckBox>
+            <MudCheckBox Label="@localizationService.GetString("Spoilers")" @bind-Value="@makeSpoiler" Color="Color.Secondary"></MudCheckBox>
+            <MudCheckBox Label="@localizationService.GetString("CodeBlock")" @bind-Value="@makeCode" Color="Color.Warning"></MudCheckBox>
+            <MudCheckBox Label="@localizationService.GetString("Quote")" @bind-Value="@makeQuote" Color="Color.Tertiary"></MudCheckBox>
+            <MudCheckBox Label="@localizationService.GetString("AddTimestamp")" @bind-Value="@addTimeStamp" Color="Color.Tertiary"></MudCheckBox>
+        </div>
+    </MudTabPanel>
+    @if (contains)
+    {
+        <MudTextField class="mt-3" T="string" Label="@localizationService.GetString("ContainsWhat")" @bind-Value="@containsText" Variant="Variant.Text" Lines="2" />
+    }
+    @if (addTimeStamp)
+    {
+        <MudDatePicker Class="mt-3" Label="@localizationService.GetString("PickADate")" @bind-Date="date" />
+        <MudTimePicker Class="mt-3" Label="@localizationService.GetString("PickATime")" @bind-Time="timeSpan" />
+    }
+    @if (replace)
+    {
+        <MudTextField class="mt-3" T="string" Label="@localizationService.GetString("Replace")" @bind-Value="@replaceText" Variant="Variant.Text" Lines="2" />
+        <MudTextField class="mt-3" T="string" Label="@localizationService.GetString("ReplaceWith")" @bind-Value="@replaceWithText" Variant="Variant.Text" Lines="2" />
+    }
+    <MudNumericField Class="mt-3" Label="@localizationService.GetString("ProcessOnTextNumber")" Min="1" Max="2" @bind-Value="@index"></MudNumericField>
+    <div class="d-flex justify-center mt-3 mb-3">
+        <MudButtonGroup class="mb-3" Variant="Variant.Outlined" Color="Color.Primary">
+            <MudButton Disabled="@processing" OnClick="Process" StartIcon="@Icons.Material.Filled.PlayArrow">
+                @if (processing)
+                {
+                    <MudProgressCircular Class="ms-n1 mr-2" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">@localizationService.GetString("Processing")</MudText>
+                }
+                else
+                {
+                    <MudText>@localizationService.GetString("Process")</MudText>
+                }
+            </MudButton>
+            <MudButton OnClick="async () => await CopyTextAsync(1)" StartIcon="@Icons.Material.Filled.ContentCopy">@localizationService.GetString("CopyText1")</MudButton>
+            <MudButton OnClick="async () => await CopyTextAsync(2)" StartIcon="@Icons.Material.Filled.ContentCopy">@localizationService.GetString("CopyText2")</MudButton>
+        </MudButtonGroup>
+    </div>
+    <MudDivider />
+    <MudCard class="mt-3 mb-3">
+        <MudCardContent>
+            <MudText Typo="Typo.h5">@localizationService.GetString("Results")</MudText>
+            <MudText Typo="Typo.h6">@localizationService.GetString("ProcessCount") @processCount</MudText>
+            <MudDivider class="mb-2 mt-2" />
+            <div class="d-flex flex-wrap">
+                <MudCheckBox Label="@localizationService.GetString("IsTextEqual")" ReadOnly="true" Value="@compareResult" Color="Color.Success"></MudCheckBox>
+                <MudCheckBox Label="@localizationService.GetString("ContainsTheWordSpecified")" ReadOnly="true" Value="@containsResult" Color="Color.Primary"></MudCheckBox>
+                <MudCheckBox Label="@localizationService.GetString("IsLengthEqual")" ReadOnly="true" Value="@lengthCompareResult" Color="Color.Warning"></MudCheckBox>
+                <MudCheckBox Label="@localizationService.GetString("CanTextExpand")" ReadOnly="true" Value="@CanTextExpand" Color="Color.Warning"></MudCheckBox>
+            </div>
+        </MudCardContent>
+    </MudCard>
+</MudTabs>
+
+@code {
+    [Parameter] public bool CanTextExpand { get; set; }
+
+    private List<string> textList = new() { "", "" };
+    private bool compare = true;
+    private bool ignoreCase = false;
+    private bool processing = false;
+    private bool compareResult = false;
+    private bool lengthCompare = false;
+    private bool lengthCompareResult = false;
+    private bool contains = false;
+    private string containsText = string.Empty;
+    private bool containsResult = false;
+    private int index = 1;
+    private bool replace = false;
+    private string replaceText = string.Empty;
+    private string replaceWithText = string.Empty;
+    private bool toUpper = false;
+    private bool toLower = false;
+    private ulong processCount = 0;
+    private MudTabs Tabs;
+    private bool makeBold = true;
+    private bool makeItalic = false;
+    private bool makeStrike = false;
+    private bool makeCode = false;
+    private bool makeQuote = false;
+    private bool makeUnderline = false;
+    private bool makeSpoiler = false;
+    private bool addTimeStamp = false;
+    private DateTime? date;
+    private TimeSpan? timeSpan;
+
+    private async Task Process()
+    {
+        processing = true;
+        processCount++;
+        try
+        {
+            if (Tabs.ActivePanelIndex == 0)
+            {
+                if (compare)
+                {
+                    compareResult = textList[0].Equals(textList[1], ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+                }
+                if (lengthCompare)
+                {
+                    lengthCompareResult = textList[0].Length == textList[1].Length;
+                }
+                if (contains)
+                {
+                    containsResult = textList[index - 1].Contains(containsText, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+                }
+                if (replace)
+                {
+                    textList[index - 1] = textList[index - 1].Replace(replaceText, replaceWithText, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+                }
+                if (toUpper)
+                {
+                    textList[index - 1] = textList[index - 1].ToUpper();
+                }
+                if (toLower)
+                {
+                    textList[index - 1] = textList[index - 1].ToLower();
+                }
+            }
+            else
+            {
+                if (makeBold)
+                {
+                    textList[index - 1] = "**" + textList[index - 1] + "**";
+                }
+                if (makeItalic)
+                {
+                    textList[index - 1] = "*" + textList[index - 1] + "*";
+                }
+                if (makeUnderline)
+                {
+                    textList[index - 1] = "__" + textList[index - 1] + "__";
+                }
+                if (makeStrike)
+                {
+                    textList[index - 1] = "~~" + textList[index - 1] + "~~";
+                }
+                if (makeSpoiler)
+                {
+                    textList[index - 1] = "||" + textList[index - 1] + "||";
+                }
+                if (makeCode)
+                {
+                    textList[index - 1] = "```" + textList[index - 1] + "```";
+                }
+                if (makeQuote)
+                {
+                    textList[index - 1] = ">>>" + textList[index - 1];
+                }
+                if (addTimeStamp)
+                {
+                    textList[index - 1] += " <t:" + ((DateTimeOffset)(date + timeSpan)).ToUnixTimeSeconds() + ":f>";
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await dialogService.DisplayConfirmAsync(localizationService.GetString("Error"), e.Message);
+        }
+        processing = false;
+    }
+
+    private async Task CopyTextAsync(int n)
+    {
+        await Clipboard.Default.SetTextAsync(textList[n - 1]);
+        Snackbar.Add(localizationService.GetString("CopiedTextMessage"), Severity.Success);
+    }
+}

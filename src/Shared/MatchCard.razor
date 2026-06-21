@@ -1,0 +1,22 @@
+@using Expandroid.Models
+
+<MudCard Elevation="2" Class="pa-4 mb-3">
+    <MudStack Justify="@Justify.SpaceBetween" Row="true">
+        <div>
+            <MudText Color="Color.Primary" Typo="Typo.h6" Align="Align.Start">@Item.Key</MudText>
+        </div>
+        <div>
+            <MudStack Row="true" Spacing="1">
+                <MudIconButton OnClick="OnEdit" Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Variant="Variant.Text" Size="Size.Large" />
+                <MudIconButton OnClick="OnDelete" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Variant="Variant.Text" Size="Size.Large" />
+            </MudStack>
+        </div>
+    </MudStack>
+    <MudText class="mr-1" Color="Color.Success" Typo="Typo.h6" Align="Align.Start">@Item.Value.Replace</MudText>
+</MudCard>
+
+@code {
+    [Parameter] public KeyValuePair<string, Match> Item { get; set; }
+    [Parameter] public EventCallback OnEdit { get; set; }
+    [Parameter] public EventCallback OnDelete { get; set; }
+}

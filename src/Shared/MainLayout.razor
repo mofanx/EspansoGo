@@ -1,45 +1,81 @@
 ﻿@inherits LayoutComponentBase
+@inject IThemeService ThemeService
+@implements IDisposable
 
-<MudThemeProvider IsDarkMode="true" Theme="MyCustomTheme"/>
+<MudThemeProvider IsDarkMode="@ThemeService.IsDarkMode" Theme="MudAppTheme"/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 
 <MudLayout>
-    <MudMainContent Class="pt-0 mb-3">
-    <MudContainer class="mt-3 pa-1">
-            <div class="d-flex justify-end mb-2">
-                <LanguageSwitcher />
-            </div>
+    <TopBar />
+    <MudMainContent Class="pt-0">
+        <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4 app-content">
             @Body
-    </MudContainer>
+        </MudContainer>
     </MudMainContent>
 </MudLayout>
 
 @code {
-    bool _drawerOpen = false;
-    MudTheme MyCustomTheme = new MudTheme()
+    private MudTheme MudAppTheme = new()
+    {
+        PaletteLight = new PaletteLight()
         {
-            PaletteDark = new PaletteDark()
-            {
-            //AppbarBackground = Colors.Indigo.Darken4,
-            //DrawerBackground = Color
-            },
-
-            LayoutProperties = new LayoutProperties()
-            {
-                DrawerWidthLeft = "260px",
-                DrawerWidthRight = "300px"
-            },
-            Typography = new Typography()
+            Primary = "#6366f1",
+            Secondary = "#8b5cf6",
+            Success = "#10b981",
+            Error = "#f43f5e",
+            Background = "#f8fafc",
+            Surface = "#ffffff",
+            AppbarBackground = "#6366f1",
+            AppbarText = "#ffffff",
+            TextPrimary = "#1e293b",
+        },
+        PaletteDark = new PaletteDark()
         {
+            Primary = "#818cf8",
+            Secondary = "#a78bfa",
+            Success = "#34d399",
+            Error = "#fb7185",
+            Background = "#0f172a",
+            Surface = "#1e293b",
+            AppbarBackground = "#1e293b",
+            AppbarText = "#f1f5f9",
+            TextPrimary = "#f1f5f9",
+        },
+        LayoutProperties = new LayoutProperties()
+        {
+            DefaultMargin = "16px",
+            DefaultPadding = "16px",
+        },
+        Typography = new Typography()
+        {
+            Default = new DefaultTypography()
+            {
+                FontFamily = new[] { "Roboto", "Helvetica Neue", "Helvetica", "Arial", "sans-serif" },
+            },
             H4 = new H4Typography()
             {
                 FontWeight = "600",
-            }
+            },
+            H6 = new H6Typography()
+            {
+                FontWeight = "600",
+            },
         }
-        };
-    void DrawerToggle()
+    };
+
+    protected override void OnInitialized()
     {
-        _drawerOpen = !_drawerOpen;
+        ThemeService.OnThemeChanged += OnThemeChanged;
+    }
+
+    private void OnThemeChanged()
+    {
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        ThemeService.OnThemeChanged -= OnThemeChanged;
     }
 }

@@ -1,7 +1,8 @@
 @using Expandroid.Services
 @inject ILocalizationService LocalizationService
+@implements IDisposable
 
-<MudSelect T="string" Label="@LocalizationService.GetString("Language")" Value="@currentLanguage" ValueChanged="ChangeLanguage" Variant="Variant.Outlined">
+<MudSelect T="string" Value="@currentLanguage" ValueChanged="ChangeLanguage" Variant="Variant.Text" Dense="true" Class="lang-switcher">
     @foreach (var language in LocalizationService.GetAvailableLanguages())
     {
         <MudSelectItem T="string" Value="@language.Code">@language.NativeName</MudSelectItem>

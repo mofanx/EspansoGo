@@ -370,4 +370,10 @@
   <data name="DateExtensionParameterFormatsError" xml:space="preserve">
     <value>Please make sure date extension parameter formats are present!</value>
   </data>
+  <data name="WelcomeMessage" xml:space="preserve">
+    <value>Welcome to Expandroid! Add a trigger and replacement text, then save to start using text expansions. You can also import existing espanso configs.</value>
+  </data>
+  <data name="SaveSuccessfulMessage" xml:space="preserve">
+    <value>Successfully saved all keywords!</value>
+  </data>
 </root>
