@@ -4,7 +4,7 @@ import android.content.Context
 import java.io.File
 
 object AppSettings {
-    val supportedList = listOf("echo", "date", "clipboard", "random")
+    val supportedList = listOf("echo", "date", "clipboard", "random", "choice")
 
     lateinit var dictPath: String
         private set

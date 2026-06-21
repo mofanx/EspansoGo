@@ -13,13 +13,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -40,8 +37,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -50,14 +48,13 @@ import androidx.compose.ui.unit.dp
 import com.dingleinc.texttoolspro.R
 import com.dingleinc.texttoolspro.data.Match
 import com.dingleinc.texttoolspro.data.Var
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(viewModel: MainViewModel) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    var showSettings by remember { mutableStateOf(false) }
 
     val canTextExpand by viewModel.canTextExpand.collectAsState()
     val dict by viewModel.dict.collectAsState()
@@ -66,8 +63,7 @@ fun MainScreen(viewModel: MainViewModel) {
     val showWelcome by viewModel.showWelcome.collectAsState()
     val lazyLoadIndex by viewModel.lazyLoadIndex.collectAsState()
     val snackbarMessage by viewModel.snackbarMessage.collectAsState()
-    val themeMode by viewModel.themeModeFlow.collectAsState()
-    val language by viewModel.language.collectAsState()
+    val recreateActivity by viewModel.recreateActivity.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.refreshAccessibilityStatus()
@@ -80,14 +76,22 @@ fun MainScreen(viewModel: MainViewModel) {
         }
     }
 
+    LaunchedEffect(recreateActivity) {
+        if (recreateActivity) {
+            (context as? MainActivity)?.recreate()
+            viewModel.onRecreateHandled()
+        }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
-                    ThemeSwitcher(themeMode) { viewModel.setThemeMode(it) }
-                    LanguageSwitcher(language) { viewModel.setLanguage(it) }
+                    IconButton(onClick = { showSettings = true }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    }
                 }
             )
         }
@@ -136,6 +140,15 @@ fun MainScreen(viewModel: MainViewModel) {
             }
         }
     }
+
+    if (showSettings) {
+        SettingsSheet(
+            viewModel = viewModel,
+            onDismiss = { showSettings = false },
+            onImport = { /* TODO: import */ },
+            onExport = { /* TODO: export */ }
+        )
+    }
 }
 
 @Composable
@@ -146,8 +159,6 @@ private fun TextExpanderContent(
     currentVar: Var,
     lazyLoadIndex: Int
 ) {
-    val context = LocalContext.current
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -160,25 +171,6 @@ private fun TextExpanderContent(
             Spacer(Modifier.width(4.dp))
             Text(stringResource(R.string.make_sure_to_save))
         }
-        OutlinedButton(onClick = { /* TODO: import */ }) {
-            Icon(Icons.Default.Upload, contentDescription = null)
-            Spacer(Modifier.width(4.dp))
-            Text(stringResource(R.string.import_text))
-        }
-        OutlinedButton(onClick = { /* TODO: export */ }) {
-            Icon(Icons.Default.Download, contentDescription = null)
-            Spacer(Modifier.width(4.dp))
-            Text(stringResource(R.string.export_text))
-        }
-    }
-
-    OutlinedButton(
-        onClick = { viewModel.forceQuit() },
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
-    ) {
-        Icon(Icons.Default.PowerSettingsNew, contentDescription = null)
-        Spacer(Modifier.width(4.dp))
-        Text(stringResource(R.string.force_quit_app))
     }
 
     Spacer(Modifier.height(16.dp))

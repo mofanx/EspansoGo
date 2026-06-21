@@ -271,17 +271,21 @@ class ExpanderAccessibilityService : AccessibilityService(), View.OnTouchListene
                     var replace = match.replace ?: ""
                     val triggerIndex = expansionStr.indexOf(text)
 
-                    if (match.word) {
-                        if (triggerIndex == 0) {
-                            if (triggerIndex + text.length < expansionStr.length &&
-                                !SEPARATORS.contains(expansionStr[triggerIndex + text.length].toString())
-                            ) return
-                        } else if (triggerIndex + text.length >= expansionStr.length ||
-                            !SEPARATORS.contains(expansionStr[triggerIndex - 1].toString()) ||
-                            !SEPARATORS.contains(expansionStr[triggerIndex + text.length].toString())
-                        ) {
-                            return
-                        }
+                    // Word boundary check: word = leftWord && rightWord
+                    val checkLeft = match.word || match.leftWord
+                    val checkRight = match.word || match.rightWord
+                    if (checkLeft || checkRight) {
+                        val beforeOk = triggerIndex == 0 ||
+                            SEPARATORS.contains(expansionStr[triggerIndex - 1].toString())
+                        val afterOk = triggerIndex + text.length >= expansionStr.length ||
+                            SEPARATORS.contains(expansionStr[triggerIndex + text.length].toString())
+                        if (checkLeft && !beforeOk) return
+                        if (checkRight && !afterOk) return
+                    }
+
+                    // Propagate case
+                    if (match.propagateCase) {
+                        replace = applyPropagateCase(text, replace, match.uppercaseStyle)
                     }
 
                     if (!match.form.isNullOrEmpty()) {
@@ -490,6 +494,13 @@ class ExpanderAccessibilityService : AccessibilityService(), View.OnTouchListene
                         val formatter = DateTimeFormatter.ofPattern(param.format ?: "")
                         replace.replace(wrapName(item.name ?: ""), dateTime.format(formatter))
                     }
+                    "choice" -> {
+                        val choices = item.params.choices ?: return replace
+                        if (choices.isNotEmpty()) {
+                            val random = SecureRandom()
+                            replace.replace(wrapName(item.name ?: ""), choices[random.nextInt(choices.size)])
+                        } else replace
+                    }
                     else -> replace
                 }
             }
@@ -500,6 +511,27 @@ class ExpanderAccessibilityService : AccessibilityService(), View.OnTouchListene
     }
 
     private fun wrapName(name: String): String = "{{$name}}"
+
+    private fun applyPropagateCase(trigger: String, replace: String, style: String?): String {
+        val isAllUpper = trigger.all { !it.isLetter() || it.isUpperCase() }
+        val isFirstUpper = trigger.isNotEmpty() && trigger[0].isUpperCase()
+        return when {
+            isAllUpper -> when (style ?: "uppercase") {
+                "uppercase" -> replace.uppercase()
+                "capitalize" -> replace.split(" ").joinToString(" ") { w ->
+                    if (w.isNotEmpty()) w[0].uppercase() + w.drop(1).lowercase() else w
+                }
+                "capitalize_words" -> replace.split(" ").joinToString(" ") { w ->
+                    if (w.isNotEmpty()) w[0].uppercase() + w.drop(1).lowercase() else w
+                }
+                else -> replace.uppercase()
+            }
+            isFirstUpper -> replace.split(" ").joinToString(" ") { w ->
+                if (w.isNotEmpty()) w[0].uppercase() + w.drop(1) else w
+            }
+            else -> replace
+        }
+    }
 
     override fun onInterrupt() {}
 

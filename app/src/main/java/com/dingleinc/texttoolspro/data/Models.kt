@@ -40,14 +40,24 @@ data class Match(
     var vars: MutableList<Var>? = null,
     var form: String? = null,
     var formFields: HashMap<String, FormOption>? = null,
-    var word: Boolean = false
+    var word: Boolean = false,
+    var triggers: MutableList<String>? = null,
+    var leftWord: Boolean = false,
+    var rightWord: Boolean = false,
+    var propagateCase: Boolean = false,
+    var uppercaseStyle: String? = null
 ) {
     constructor(og: Match) : this(
         og.trigger, og.replace,
         og.vars?.map { Var(it) }?.toMutableList(),
         og.form,
         og.formFields?.let { HashMap(it) },
-        og.word
+        og.word,
+        og.triggers?.toMutableList(),
+        og.leftWord,
+        og.rightWord,
+        og.propagateCase,
+        og.uppercaseStyle
     )
 }
 

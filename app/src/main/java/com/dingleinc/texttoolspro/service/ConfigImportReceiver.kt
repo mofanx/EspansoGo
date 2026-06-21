@@ -60,7 +60,16 @@ class ConfigImportReceiver : BroadcastReceiver() {
 
                 val dict = mutableMapOf<String, Match>()
                 localDict.matches?.forEach { match ->
-                    match.trigger?.let { dict[it] = match }
+                    if (!match.triggers.isNullOrEmpty()) {
+                        match.triggers!!.forEach { t ->
+                            val cloned = Match(match)
+                            cloned.trigger = t
+                            cloned.triggers = null
+                            dict[t] = cloned
+                        }
+                    } else {
+                        match.trigger?.let { dict[it] = match }
+                    }
                 }
                 val jsonStr = SerializationHelper.toJson(dict)
                 File(AppSettings.dictPath).writeText(jsonStr)

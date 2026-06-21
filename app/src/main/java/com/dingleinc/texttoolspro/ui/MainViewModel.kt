@@ -58,6 +58,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _language = MutableStateFlow(prefs.getString("app_language", "en") ?: "en")
     val language = _language.asStateFlow()
 
+    private val _recreateActivity = MutableStateFlow(false)
+    val recreateActivity = _recreateActivity.asStateFlow()
+
     init {
         loadDict()
     }
@@ -74,6 +77,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setLanguage(code: String) {
         _language.value = code
         prefs.edit().putString("app_language", code).apply()
+        _recreateActivity.value = true
     }
 
     fun dismissWelcome() {
@@ -269,5 +273,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearSnackbar() {
         _snackbarMessage.value = null
+    }
+
+    fun onRecreateHandled() {
+        _recreateActivity.value = false
     }
 }
