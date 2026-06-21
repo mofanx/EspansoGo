@@ -13,7 +13,7 @@ android {
         applicationId = "com.dingleinc.texttoolspro"
         minSdk = 24
         targetSdk = 35
-        versionCode = 23
+        versionCode = 200031
         versionName = "7.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
