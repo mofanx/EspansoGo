@@ -15,9 +15,9 @@
         <MudStack Spacing="3">
             <MudText Typo="Typo.h6">Current Status</MudText>
             <MudStack Row="true" Align="Align.Center" Spacing="3">
-                <MudChip Color="@(SyncManager.CurrentStatus == SyncStatus.Idle ? Color.Success :
-                                   SyncManager.CurrentStatus == SyncStatus.Syncing ? Color.Info :
-                                   SyncManager.CurrentStatus == SyncStatus.Error ? Color.Error :
+                <MudChip Color="@(SyncManager.CurrentStatus == Services.SyncStatus.Idle ? Color.Success :
+                                   SyncManager.CurrentStatus == Services.SyncStatus.Syncing ? Color.Info :
+                                   SyncManager.CurrentStatus == Services.SyncStatus.Error ? Color.Error :
                                    Color.Warning)">
                     @SyncManager.CurrentStatus.ToString()
                 </MudChip>

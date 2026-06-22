@@ -519,12 +519,12 @@ public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.
             }
             else if (regexDict.Count > 0)
             {
-                foreach (var (regex, match) in regexDict)
+                foreach (var (regex, regexMatch) in regexDict)
                 {
                     var m = regex.Match(expansionStr);
                     if (m.Success)
                     {
-                        string replace = match.Replace;
+                        string replace = regexMatch.Replace;
                         var triggerIndex = m.Index;
                         var matchedText = m.Value;
                         if (globals is not null)
@@ -532,15 +532,15 @@ public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.
                             foreach (var item in globals)
                                 replace = await ParseItemAsync(item, replace);
                         }
-                        if (match.Vars is not null && match.Vars.Count > 0)
+                        if (regexMatch.Vars is not null && regexMatch.Vars.Count > 0)
                         {
-                            foreach (var item in match.Vars)
+                            foreach (var item in regexMatch.Vars)
                                 replace = await ParseItemAsync(item, replace);
                         }
                         if (replace is not null)
                         {
-                            if (match.PropagateCase)
-                                replace = ApplyPropagateCase(matchedText, replace, match.UppercaseStyle);
+                            if (regexMatch.PropagateCase)
+                                replace = ApplyPropagateCase(matchedText, replace, regexMatch.UppercaseStyle);
                             expansionStr = expansionStr[..triggerIndex] + replace + expansionStr[(triggerIndex + matchedText.Length)..];
                             send = true;
                         }

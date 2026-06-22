@@ -19,10 +19,10 @@
     {
         return SyncManager.CurrentStatus switch
         {
-            SyncStatus.Idle => Severity.Success,
-            SyncStatus.Syncing => Severity.Info,
-            SyncStatus.Error => Severity.Error,
-            SyncStatus.Conflict => Severity.Warning,
+            Services.SyncStatus.Idle => Severity.Success,
+            Services.SyncStatus.Syncing => Severity.Info,
+            Services.SyncStatus.Error => Severity.Error,
+            Services.SyncStatus.Conflict => Severity.Warning,
             _ => Severity.Info
         };
     }
@@ -33,9 +33,9 @@
         var lastStr = last?.ToLocalTime().ToString("g") ?? "never";
         return SyncManager.CurrentStatus switch
         {
-            SyncStatus.Syncing => "Syncing...",
-            SyncStatus.Error => "Sync error - tap to retry",
-            SyncStatus.Conflict => $"Sync conflict detected (last sync: {lastStr})",
+            Services.SyncStatus.Syncing => "Syncing...",
+            Services.SyncStatus.Error => "Sync error - tap to retry",
+            Services.SyncStatus.Conflict => $"Sync conflict detected (last sync: {lastStr})",
             _ => $"Sync OK (last: {lastStr})"
         };
     }

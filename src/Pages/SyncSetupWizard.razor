@@ -9,8 +9,9 @@
 
 <MudText Typo="Typo.h4" Align="Align.Center" class="mb-4">Sync Setup Wizard</MudText>
 
-<MudStepper Color="Color.Primary" class="mb-4">
-    @if (_step == 1)
+<MudCard Class="mb-4">
+    <MudCardContent>
+@if (_step == 1)
     {
         <MudText Typo="Typo.h6" class="mb-3">Do you already use desktop espanso?</MudText>
         <MudStack Row="true" Spacing="3">
@@ -83,7 +84,8 @@
             <MudButton Variant="Variant.Text" OnClick="() => _step = 2">Back</MudButton>
         </MudStack>
     }
-</MudStepper>
+    </MudCardContent>
+</MudCard>
 
 @code {
     private int _step = 1;
