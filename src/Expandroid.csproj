@@ -72,10 +72,6 @@
     <PackageReference Include="Xamarin.AndroidX.DocumentFile" Version="1.0.1.23" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\AppResources.resx" />
-    <EmbeddedResource Include="Resources\AppResources.zh.resx" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Resources\Images\" />
   </ItemGroup>
 </Project>
