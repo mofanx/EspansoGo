@@ -11,7 +11,7 @@ data class Params(
     constructor(og: Params) : this(og.data.toMutableMap())
 
     operator fun get(key: String): Any? = data[key]
-    operator fun set(key: String, value: Any?) { data[key] = value }
+    operator fun set(key: String, value: Any?) { if (value != null) data[key] = value }
 
     fun string(key: String): String? = (data[key] as? String)
     fun long(key: String): Long = (data[key] as? Long) ?: (data[key] as? Int)?.toLong() ?: 0L
