@@ -46,6 +46,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentHashMap
+import java.util.regex.Pattern
 
 class ExpanderAccessibilityService : AccessibilityService(), View.OnTouchListener {
 
@@ -58,6 +59,7 @@ class ExpanderAccessibilityService : AccessibilityService(), View.OnTouchListene
     }
 
     private var dict: MutableMap<String, Match> = mutableMapOf()
+    private var regexDict: MutableMap<Pattern, Match> = mutableMapOf()
     private var globals: List<Var>? = null
     private val cursorArgs = Bundle()
     private var layoutParams: WindowManager.LayoutParams? = null
@@ -94,15 +96,26 @@ class ExpanderAccessibilityService : AccessibilityService(), View.OnTouchListene
                         ) {
                             dict[item.trigger!!] = item
                         }
+                        if (!item.regex.isNullOrEmpty() && !item.replace.isNullOrEmpty()) {
+                            try {
+                                regexDict[Pattern.compile(item.regex!!)] = item
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Invalid regex: ${item.regex}")
+                            }
+                        }
                     }
                     is ServiceCommandBus.Command.Quit -> {
                         disableSelf()
                     }
                     is ServiceCommandBus.Command.Reset -> {
                         loadDictFromFiles()
+                        rebuildRegexDict()
                     }
                     is ServiceCommandBus.Command.Remove -> {
                         dict.remove(command.match.trigger)
+                        if (!command.match.regex.isNullOrEmpty()) {
+                            regexDict.entries.removeIf { it.value === command.match }
+                        }
                     }
                     is ServiceCommandBus.Command.UpdateGlobals -> {
                         globals = command.globals
@@ -130,8 +143,22 @@ class ExpanderAccessibilityService : AccessibilityService(), View.OnTouchListene
                     object : com.fasterxml.jackson.core.type.TypeReference<List<Var>>() {}
                 )
             }
+            rebuildRegexDict()
         } catch (e: Exception) {
             Log.e(TAG, "Error loading files: ${e.message}")
+        }
+    }
+
+    private fun rebuildRegexDict() {
+        regexDict.clear()
+        dict.values.forEach { match ->
+            if (!match.regex.isNullOrEmpty()) {
+                try {
+                    regexDict[Pattern.compile(match.regex!!)] = match
+                } catch (e: Exception) {
+                    Log.e(TAG, "Invalid regex pattern: ${match.regex}")
+                }
+            }
         }
     }
 
@@ -292,6 +319,12 @@ class ExpanderAccessibilityService : AccessibilityService(), View.OnTouchListene
                         showForm(match, text, event)
                         return
                     } else {
+                        // Check if any var is a choice type — needs interactive UI
+                        val hasChoiceVar = match.vars?.any { it.type == "choice" } == true
+                        if (hasChoiceVar) {
+                            showChoiceForMatch(match, text, event, expansionStr, triggerIndex, storeOriginal, original)
+                            return
+                        }
                         globals?.forEach { item ->
                             replace = parseItem(item, replace)
                         }
@@ -310,6 +343,50 @@ class ExpanderAccessibilityService : AccessibilityService(), View.OnTouchListene
                                 previousExpansion = ""
                             }
                             return
+                        }
+                    }
+                } else if (regexDict.isNotEmpty()) {
+                    // Try regex triggers
+                    for ((pattern, regexMatch) in regexDict) {
+                        val matcher = pattern.matcher(expansionStr)
+                        if (matcher.find()) {
+                            val matchedText = matcher.group()
+                            var replace = regexMatch.replace ?: ""
+                            val triggerIndex = matcher.start()
+
+                            if (regexMatch.propagateCase) {
+                                replace = applyPropagateCase(matchedText, replace, regexMatch.uppercaseStyle)
+                            }
+
+                            if (!regexMatch.form.isNullOrEmpty()) {
+                                showForm(regexMatch, matchedText, event)
+                                return
+                            } else {
+                                val hasChoiceVar = regexMatch.vars?.any { it.type == "choice" } == true
+                                if (hasChoiceVar) {
+                                    showChoiceForMatch(regexMatch, matchedText, event, expansionStr, triggerIndex, storeOriginal, original)
+                                    return
+                                }
+                                globals?.forEach { item ->
+                                    replace = parseItem(item, replace)
+                                }
+                                regexMatch.vars?.forEach { item ->
+                                    replace = parseItem(item, replace)
+                                }
+                                if (replace.isNotEmpty()) {
+                                    val end = expansionStr.substring(triggerIndex).replace(matchedText, replace)
+                                    val newStr = expansionStr.substring(0, triggerIndex) + end
+                                    doExpansion(event, newStr)
+                                    if (storeOriginal) {
+                                        previousOriginal = original
+                                        previousExpansion = newStr
+                                    } else {
+                                        previousOriginal = ""
+                                        previousExpansion = ""
+                                    }
+                                    return
+                                }
+                            }
                         }
                     }
                 }
@@ -495,11 +572,8 @@ class ExpanderAccessibilityService : AccessibilityService(), View.OnTouchListene
                         replace.replace(wrapName(item.name ?: ""), dateTime.format(formatter))
                     }
                     "choice" -> {
-                        val choices = item.params.choices ?: return replace
-                        if (choices.isNotEmpty()) {
-                            val random = SecureRandom()
-                            replace.replace(wrapName(item.name ?: ""), choices[random.nextInt(choices.size)])
-                        } else replace
+                        // Handled by showChoiceForMatch before parseItem is called
+                        replace
                     }
                     else -> replace
                 }
@@ -511,6 +585,99 @@ class ExpanderAccessibilityService : AccessibilityService(), View.OnTouchListene
     }
 
     private fun wrapName(name: String): String = "{{$name}}"
+
+    private fun showChoiceForMatch(
+        match: Match,
+        triggerText: String,
+        event: AccessibilityEvent,
+        expansionStr: String,
+        triggerIndex: Int,
+        storeOriginal: Boolean,
+        original: String
+    ) {
+        val context = this
+        var workingReplace = match.replace ?: ""
+
+        if (match.propagateCase) {
+            workingReplace = applyPropagateCase(triggerText, workingReplace, match.uppercaseStyle)
+        }
+
+        // Process non-choice vars first
+        globals?.forEach { item ->
+            workingReplace = parseItem(item, workingReplace)
+        }
+        match.vars?.forEach { item ->
+            if (item.type != "choice") {
+                workingReplace = parseItem(item, workingReplace)
+            }
+        }
+
+        // Find the first choice var
+        val choiceVar = match.vars?.find { it.type == "choice" } ?: return
+        val values = choiceVar.params.values ?: choiceVar.params.choices ?: return
+        if (values.isEmpty()) return
+
+        val choiceContainer = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(16, 16, 16, 16)
+        }
+
+        val title = TextView(context).apply {
+            text = "Select: ${choiceVar.name ?: "choice"}"
+            setPadding(0, 0, 0, 8)
+        }
+        choiceContainer.addView(title)
+
+        val listView = ListView(context)
+        val adapter = ArrayAdapter(
+            context,
+            android.R.layout.simple_list_item_1,
+            values
+        )
+        listView.adapter = adapter
+        listView.setOnItemClickListener { _, _, position, _ ->
+            val selected = values[position]
+            var finalReplace = workingReplace.replace(wrapName(choiceVar.name ?: ""), selected)
+
+            // Process remaining choice vars (if multiple, only first is interactive, rest use first value)
+            match.vars?.forEach { item ->
+                if (item.type == "choice" && item != choiceVar) {
+                    val vals = item.params.values ?: item.params.choices
+                    if (!vals.isNullOrEmpty()) {
+                        finalReplace = finalReplace.replace(wrapName(item.name ?: ""), vals[0])
+                    }
+                }
+            }
+
+            windowManager?.removeView(floatView)
+            rowContainer?.removeAllViewsInLayout()
+
+            val end = expansionStr.substring(triggerIndex).replace(triggerText, finalReplace)
+            val newStr = expansionStr.substring(0, triggerIndex) + end
+            doExpansion(event, newStr)
+            if (storeOriginal) {
+                previousOriginal = original
+                previousExpansion = newStr
+            } else {
+                previousOriginal = ""
+                previousExpansion = ""
+            }
+        }
+        choiceContainer.addView(listView)
+
+        val cancelButton = Button(context)
+        cancelButton.text = "Cancel"
+        cancelButton.setOnClickListener {
+            windowManager?.removeView(floatView)
+            rowContainer?.removeAllViewsInLayout()
+        }
+        choiceContainer.addView(cancelButton)
+
+        rowContainer?.post {
+            rowContainer?.addView(choiceContainer)
+        }
+        windowManager?.addView(floatView, layoutParams)
+    }
 
     private fun applyPropagateCase(trigger: String, replace: String, style: String?): String {
         val isAllUpper = trigger.all { !it.isLetter() || it.isUpperCase() }

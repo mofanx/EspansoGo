@@ -9,17 +9,17 @@ android {
     namespace = "com.dingleinc.texttoolspro"
     compileSdk = 35
 
-    val keystorePath = System.getenv("KEYSTORE_PATH") ?: "/home/yan/ubuntu/project/backup/app/keystore/expandroid.jks"
-    val keystorePass = System.getenv("KEYSTORE_PASS") ?: "Expandroid2024!"
-    val keyAlias = System.getenv("KEY_ALIAS") ?: "expandroid-key"
-    val keyPass = System.getenv("KEY_PASS") ?: "Expandroid2024!"
+    val keystorePathVal = System.getenv("KEYSTORE_PATH") ?: "/home/yan/ubuntu/project/backup/app/keystore/expandroid.jks"
+    val keystorePassVal = System.getenv("KEYSTORE_PASS") ?: "Expandroid2024!"
+    val keyAliasVal = System.getenv("KEY_ALIAS") ?: "expandroid-key"
+    val keyPassVal = System.getenv("KEY_PASS") ?: "Expandroid2024!"
 
     signingConfigs {
         create("release") {
-            storeFile = file(keystorePath)
-            storePassword = keystorePass
-            keyAlias = keyAlias
-            keyPassword = keyPass
+            storeFile = file(keystorePathVal)
+            storePassword = keystorePassVal
+            keyAlias = keyAliasVal
+            keyPassword = keyPassVal
         }
     }
 

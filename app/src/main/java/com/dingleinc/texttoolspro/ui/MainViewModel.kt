@@ -2,9 +2,11 @@ package com.dingleinc.texttoolspro.ui
 
 import android.app.Application
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dingleinc.texttoolspro.data.AppSettings
+import com.dingleinc.texttoolspro.data.DictWrapper
 import com.dingleinc.texttoolspro.data.Match
 import com.dingleinc.texttoolspro.data.SerializationHelper
 import com.dingleinc.texttoolspro.data.ServiceCommandBus
@@ -277,5 +279,105 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onRecreateHandled() {
         _recreateActivity.value = false
+    }
+
+    fun importConfig(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                val content = getApplication<Application>().contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+                    ?: throw Exception("Cannot read file")
+
+                val localDict = SerializationHelper.parseDictWrapperFromYaml(content)
+
+                // Convert date formats and filter unsupported vars
+                localDict.matches?.forEach { match ->
+                    match.vars?.forEach { v ->
+                        if (v.type == "date" && !v.params.format.isNullOrEmpty()) {
+                            v.params.format = Utils.getTheRealFormat(v.params.format!!)
+                        }
+                    }
+                }
+                localDict.globalVars?.forEach { v ->
+                    if (v.type == "date" && !v.params.format.isNullOrEmpty()) {
+                        v.params.format = Utils.getTheRealFormat(v.params.format!!)
+                    }
+                }
+
+                // Build dict from imported matches
+                val dict = mutableMapOf<String, Match>()
+                localDict.matches?.forEach { match ->
+                    if (!match.triggers.isNullOrEmpty()) {
+                        match.triggers!!.forEach { t ->
+                            val cloned = Match(match)
+                            cloned.trigger = t
+                            cloned.triggers = null
+                            dict[t] = cloned
+                        }
+                    } else if (!match.trigger.isNullOrEmpty()) {
+                        dict[match.trigger!!] = match
+                    } else if (!match.regex.isNullOrEmpty()) {
+                        dict["__regex__${match.regex}"] = match
+                    }
+                }
+
+                // Save
+                _dict.value = dict
+                File(AppSettings.dictPath).writeText(SerializationHelper.toJson(dict))
+
+                if (!localDict.globalVars.isNullOrEmpty()) {
+                    _globalVars.value = localDict.globalVars!!
+                    File(AppSettings.globalVarsPath).writeText(SerializationHelper.toJson(localDict.globalVars!!))
+                    ServiceCommandBus.trySend(ServiceCommandBus.Command.UpdateGlobals(localDict.globalVars!!))
+                }
+
+                ServiceCommandBus.trySend(ServiceCommandBus.Command.Reset)
+                _snackbarMessage.value = "Imported ${dict.size} matches"
+            } catch (e: Exception) {
+                _snackbarMessage.value = "Import error: ${e.message}"
+            }
+        }
+    }
+
+    fun exportConfig(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                val matches = mutableListOf<Match>()
+                _dict.value.values.forEach { match ->
+                    val exportMatch = Match(match)
+                    // Reverse date format conversion
+                    exportMatch.vars?.forEach { v ->
+                        if (v.type == "date" && !v.params.format.isNullOrEmpty()) {
+                            v.params.format = Utils.getOriginalFormat(v.params.format!!)
+                        }
+                    }
+                    // Remove internal regex key prefix
+                    if (exportMatch.trigger != null && exportMatch.trigger!!.startsWith("__regex__")) {
+                        exportMatch.trigger = null
+                    }
+                    matches.add(exportMatch)
+                }
+
+                val exportGlobals = _globalVars.value.map { v ->
+                    val copy = Var(v)
+                    if (copy.type == "date" && !copy.params.format.isNullOrEmpty()) {
+                        copy.params.format = Utils.getOriginalFormat(copy.params.format!!)
+                    }
+                    copy
+                }.toMutableList()
+
+                val wrapper = DictWrapper(
+                    globalVars = exportGlobals,
+                    matches = matches
+                )
+
+                val yaml = SerializationHelper.toYaml(wrapper)
+                getApplication<Application>().contentResolver.openOutputStream(uri)?.use { it.write(yaml.toByteArray()) }
+                    ?: throw Exception("Cannot write file")
+
+                _snackbarMessage.value = "Exported ${matches.size} matches"
+            } catch (e: Exception) {
+                _snackbarMessage.value = "Export error: ${e.message}"
+            }
+        }
     }
 }

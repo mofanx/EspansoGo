@@ -1,5 +1,10 @@
 package com.dingleinc.texttoolspro.data
 
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.JsonToken
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonDeserializer
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -9,11 +14,14 @@ data class Params(
     var offset: Long = 0,
     var cmd: String? = null,
     var layout: String? = null,
-    var choices: MutableList<String>? = null
+    var choices: MutableList<String>? = null,
+    @JsonDeserialize(using = ValuesDeserializer::class)
+    var values: MutableList<String>? = null
 ) {
     constructor(og: Params) : this(
         og.echo, og.format, og.offset, og.cmd, og.layout,
-        og.choices?.toMutableList()
+        og.choices?.toMutableList(),
+        og.values?.toMutableList()
     )
 }
 
@@ -45,7 +53,8 @@ data class Match(
     var leftWord: Boolean = false,
     var rightWord: Boolean = false,
     var propagateCase: Boolean = false,
-    var uppercaseStyle: String? = null
+    var uppercaseStyle: String? = null,
+    var regex: String? = null
 ) {
     constructor(og: Match) : this(
         og.trigger, og.replace,
@@ -57,7 +66,8 @@ data class Match(
         og.leftWord,
         og.rightWord,
         og.propagateCase,
-        og.uppercaseStyle
+        og.uppercaseStyle,
+        og.regex
     )
 }
 
@@ -67,3 +77,23 @@ data class DictWrapper(
     var globalVars: MutableList<Var>? = null,
     var matches: MutableList<Match>? = null
 )
+
+class ValuesDeserializer : JsonDeserializer<MutableList<String>>() {
+    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): MutableList<String>? {
+        return when (p.currentToken) {
+            JsonToken.VALUE_NULL -> null
+            JsonToken.VALUE_STRING -> {
+                val s = p.valueAsString
+                if (s.isNullOrBlank()) mutableListOf()
+                else s.split("\n").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
+            }
+            JsonToken.START_ARRAY -> {
+                val text = p.readValueAsTree<com.fasterxml.jackson.databind.node.ArrayNode>()
+                val list = mutableListOf<String>()
+                text.forEach { node -> list.add(node.asText()) }
+                list
+            }
+            else -> mutableListOf()
+        }
+    }
+}

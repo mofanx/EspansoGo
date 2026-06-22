@@ -59,7 +59,21 @@ class ConfigImportReceiver : BroadcastReceiver() {
                 }
 
                 val dict = mutableMapOf<String, Match>()
+                var skippedCount = 0
                 localDict.matches?.forEach { match ->
+                    // Check if any vars have unsupported types
+                    var hasUnsupported = false
+                    match.vars?.forEach { v ->
+                        if (v.type != null && !AppSettings.supportedList.contains(v.type)) {
+                            hasUnsupported = true
+                        }
+                    }
+                    if (hasUnsupported) {
+                        skippedCount++
+                        Log.w(TAG, "Skipped match with unsupported var type: trigger=${match.trigger} regex=${match.regex}")
+                        return@forEach
+                    }
+
                     if (!match.triggers.isNullOrEmpty()) {
                         match.triggers!!.forEach { t ->
                             val cloned = Match(match)
@@ -67,8 +81,11 @@ class ConfigImportReceiver : BroadcastReceiver() {
                             cloned.triggers = null
                             dict[t] = cloned
                         }
-                    } else {
-                        match.trigger?.let { dict[it] = match }
+                    } else if (!match.trigger.isNullOrEmpty()) {
+                        dict[match.trigger!!] = match
+                    } else if (!match.regex.isNullOrEmpty()) {
+                        // Regex-only match: use regex string as dict key for storage
+                        dict["__regex__${match.regex}"] = match
                     }
                 }
                 val jsonStr = SerializationHelper.toJson(dict)
@@ -77,6 +94,8 @@ class ConfigImportReceiver : BroadcastReceiver() {
 
                 val resultIntent = Intent("com.dingleinc.texttoolspro.CONFIG_RESULT")
                 resultIntent.putExtra("status", 0)
+                resultIntent.putExtra("imported", dict.size)
+                resultIntent.putExtra("skipped", skippedCount)
                 context.sendBroadcast(resultIntent)
             } catch (e: Exception) {
                 Log.e(TAG, "Import error: ${e}")

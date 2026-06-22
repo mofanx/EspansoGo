@@ -1,5 +1,7 @@
 package com.dingleinc.texttoolspro.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,6 +58,18 @@ fun MainScreen(viewModel: MainViewModel) {
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var showSettings by remember { mutableStateOf(false) }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { viewModel.importConfig(it) }
+    }
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/x-yaml")
+    ) { uri ->
+        uri?.let { viewModel.exportConfig(it) }
+    }
 
     val canTextExpand by viewModel.canTextExpand.collectAsState()
     val dict by viewModel.dict.collectAsState()
@@ -146,8 +160,12 @@ fun MainScreen(viewModel: MainViewModel) {
         SettingsSheet(
             viewModel = viewModel,
             onDismiss = { showSettings = false },
-            onImport = { /* TODO: import */ },
-            onExport = { /* TODO: export */ }
+            onImport = {
+                importLauncher.launch(arrayOf("text/yaml", "text/yml", "application/x-yaml", "*/*"))
+            },
+            onExport = {
+                exportLauncher.launch("expandroid_export.yml")
+            }
         )
     }
 }
