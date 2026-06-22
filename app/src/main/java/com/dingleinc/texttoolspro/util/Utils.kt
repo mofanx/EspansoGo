@@ -64,7 +64,7 @@ object Utils {
         result = result.replace("%w", now.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH))
         result = result.replace("%u", (now.dayOfWeek.value).toString())
         result = result.replace("%C", (now.year / 100).toString())
-        result = result.replace("%G", now.with(IsoFields.WEEK_BASED_YEAR).toString())
+        result = result.replace("%G", now.get(IsoFields.WEEK_BASED_YEAR).toString())
         result = result.replace("%V", String.format("%02d", now.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)))
         result = result.replace("%Z", ZoneId.systemDefault().id)
         result = result.replace("%s", (now.atZone(ZoneId.systemDefault()).toEpochSecond()).toString())
