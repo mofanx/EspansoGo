@@ -53,11 +53,12 @@ else
             else
             {
                 <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="mb-3">
-                    <MudText Typo="Typo.h6">
-                        @(editingKey is not null ? localizationService.GetString("EditMatch") : localizationService.GetString("AddNewMatch"))
-                    </MudText>
-                    <MudIconButton OnClick="ToggleEditor" Icon="@(_showEditor ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)"
-                                   Color="Color.Default" Variant="Variant.Text" Size="Size.Large" />
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="ToggleEditor" Class="px-0">
+                        <MudText Typo="Typo.h6">
+                            @(editingKey is not null ? localizationService.GetString("EditMatch") : localizationService.GetString("AddNewMatch"))
+                        </MudText>
+                        <MudIcon Icon="@(_showEditor ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)" Class="ms-1" />
+                    </MudButton>
                 </MudStack>
 
                 @if (_showEditor)
@@ -101,7 +102,7 @@ else
                                 }
                             </MudPaper>
 
-                            <MudExpansionPanels Elevation="0" Outlined="true">
+                            <MudExpansionPanels Elevation="0" Outlined="true" MultiSelection="false">
                                 <MudExpansionPanel Text="@localizationService.GetString("Templates")" MaxHeight="1000">
                                     <MudStack class="mt-1" Justify="@Justify.SpaceBetween" Row="true">
                                         <MudText>@localizationService.GetString("DateToday")</MudText>
@@ -141,10 +142,13 @@ else
 
                 <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="mb-2">
                     <MudText Typo="Typo.h6">@localizationService.GetString("YourMatches")</MudText>
-                    <MudStack Row="true" Spacing="1">
+                    <MudStack Row="true" Spacing="1" Align="Align.Center">
                         <MudIconButton @onclick="ImportAsync" Icon="@Icons.Material.Filled.Upload" Color="Color.Default" Variant="Variant.Text" Size="Size.Medium" />
                         <MudIconButton @onclick="ExportAsync" Icon="@Icons.Material.Filled.Download" Color="Color.Default" Variant="Variant.Text" Size="Size.Medium" />
-                        <MudIconButton @onclick="() => SaveDictAsync()" Icon="@Icons.Material.Filled.Save" Color="Color.Primary" Variant="Variant.Text" Size="Size.Medium" Disabled="@_saving" />
+                        <MudIconButton @onclick="SyncNowAsync" Icon="@Icons.Material.Filled.Sync" Color="Color.Default" Variant="Variant.Text" Size="Size.Medium" Disabled="@_syncing" />
+                        <MudButton @onclick="() => SaveDictAsync()" Color="Color.Primary" Variant="Variant.Text" Size="Size.Small" StartIcon="@Icons.Material.Filled.Save" Disabled="@_saving">
+                            @localizationService.GetString("Save")
+                        </MudButton>
                     </MudStack>
                 </MudStack>
 

@@ -27,7 +27,7 @@
         }
         else if (_packages.Count == 0)
         {
-            <MudText Align="Align.Center" Color="Color.Surface" class="mt-4">
+            <MudText Align="Align.Center" Color="Color.Default" class="mt-4">
                 @localizationService.GetString("NoPackagesFound")
             </MudText>
         }
@@ -40,13 +40,13 @@
                         <MudCard Class="mb-3">
                             <MudCardContent>
                                 <MudText Typo="Typo.h6">@pkg.Title</MudText>
-                                <MudText Typo="Typo.body2" Color="Color.Surface" class="mb-2">by @pkg.Author</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Default" class="mb-2">by @pkg.Author</MudText>
                                 <MudText Typo="Typo.body2" class="mb-2" Style="min-height: 40px;">
                                     @(pkg.Description?.Length > 100 ? pkg.Description.Substring(0, 100) + "..." : pkg.Description)
                                 </MudText>
                                 @if (!string.IsNullOrEmpty(pkg.Tags))
                                 {
-                                    <MudText Typo="Typo.caption" Color="Color.Surface">
+                                    <MudText Typo="Typo.caption" Color="Color.Default">
                                         @pkg.Tags
                                     </MudText>
                                 }

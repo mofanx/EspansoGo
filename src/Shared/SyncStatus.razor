@@ -7,14 +7,16 @@
 @if (SyncManager.GetConfig().Method != SyncMethod.None)
 {
     <MudAlert Severity="@GetSeverity()" Class="mb-3" Style="cursor: pointer;" OnClick="OnClick">
-        <MudStack Row="true" Align="Align.Center" Spacing="2">
-            <MudIcon Icon="@GetStatusIcon()" />
-            <MudText>
-                @GetStatusText()
-                <MudChip Size="Size.Small" Color="Color.Default" Class="ml-2">
-                    @GetMethodName()
-                </MudChip>
-            </MudText>
+        <MudStack Row="true" Align="Align.Center" Spacing="2" Justify="@Justify.SpaceBetween" Style="width: 100%;">
+            <MudStack Row="true" Align="Align.Center" Spacing="2" Style="overflow: hidden;">
+                <MudIcon Icon="@GetStatusIcon()" />
+                <MudText Style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    @GetStatusText()
+                    <MudChip Size="Size.Small" Color="Color.Default" Class="ml-2">
+                        @GetMethodName()
+                    </MudChip>
+                </MudText>
+            </MudStack>
             @if (SyncManager.CurrentStatus == Services.SyncStatus.Conflict)
             {
                 <MudChip Size="Size.Small" Color="Color.Warning">

@@ -69,7 +69,7 @@
 <MudCard Elevation="1">
     <MudCardContent>
         <MudText Typo="Typo.h6" Class="mb-2">@localizationService.GetString("Results")</MudText>
-        <MudText Typo="Typo.body2" Color="Color.Surface" Class="mb-2">@localizationService.GetString("ProcessCount") @processCount</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Default" Class="mb-2">@localizationService.GetString("ProcessCount") @processCount</MudText>
         <MudStack Spacing="1">
             <MudStack Row="true" Align="Align.Center" Spacing="2">
                 <MudIcon Icon="@(compareResult ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)" Color="@(compareResult ? Color.Success : Color.Error)" Size="Size.Small" />
@@ -107,7 +107,7 @@
     private bool toUpper = false;
     private bool toLower = false;
     private ulong processCount = 0;
-    private int _activeMode = 0;
+    private int _activeMode = -1;
 
     private void OnBasicExpandedChanged(bool expanded)
     {
