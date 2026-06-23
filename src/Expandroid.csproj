@@ -24,25 +24,18 @@
     <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
-    <AndroidPackageFormat>aab</AndroidPackageFormat>
+  <PropertyGroup Condition="$(TargetFramework.Contains('android'))">
+    <AndroidUseFastDeployment>false</AndroidUseFastDeployment>
     <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
     <AndroidUseAapt2>True</AndroidUseAapt2>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
-    <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
-    <AndroidUseAapt2>True</AndroidUseAapt2>
-    <AndroidPackageFormat>aab</AndroidPackageFormat>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android.0|AnyCPU'">
     <AndroidPackageFormat>apk</AndroidPackageFormat>
-    <AndroidCreatePackagePerAbi>True</AndroidCreatePackagePerAbi>
-    <AndroidUseAapt2>True</AndroidUseAapt2>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android.0|AnyCPU'">
-    <AndroidCreatePackagePerAbi>True</AndroidCreatePackagePerAbi>
-    <AndroidUseAapt2>True</AndroidUseAapt2>
-    <AndroidPackageFormat>apk</AndroidPackageFormat>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' And $(TargetFramework.Contains('android'))">
+    <AndroidKeyStore>True</AndroidKeyStore>
+    <AndroidSigningKeyStore>$(KEYSTORE_PATH)</AndroidSigningKeyStore>
+    <AndroidSigningStorePass>$(KEYSTORE_PASS)</AndroidSigningStorePass>
+    <AndroidSigningKeyAlias>$(KEY_ALIAS)</AndroidSigningKeyAlias>
+    <AndroidSigningKeyPass>$(KEY_PASS)</AndroidSigningKeyPass>
   </PropertyGroup>
   <ItemGroup>
     <!-- App Icon -->
