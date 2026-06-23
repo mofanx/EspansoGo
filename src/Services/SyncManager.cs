@@ -437,6 +437,15 @@ namespace Expandroid.Services
             _suppressSyncCompleted = false;
             if (!_suppressSyncCompleted) SyncCompleted?.Invoke(finalResult.Status, finalResult);
             return finalResult;
+            }
+            catch (Exception ex)
+            {
+                _suppressSyncCompleted = false;
+                var errResult = new SyncResult { ErrorMessage = ex.Message, Status = SyncStatus.Error };
+                CurrentStatus = SyncStatus.Error;
+                SyncCompleted?.Invoke(CurrentStatus, errResult);
+                return errResult;
+            }
         }
 
         #endregion
