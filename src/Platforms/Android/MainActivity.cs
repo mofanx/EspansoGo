@@ -18,7 +18,11 @@ public class MainActivity : MauiAppCompatActivity
         if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
         {
             Window?.SetFlags(WindowManagerFlags.LayoutNoLimits, WindowManagerFlags.LayoutNoLimits);
-            Window?.DecorView?.SystemUiVisibility = (StatusBarVisibility)(SystemUiFlags.LayoutStable | SystemUiFlags.LayoutFullscreen);
+            var decorView = Window?.DecorView;
+            if (decorView != null)
+            {
+                decorView.SystemUiVisibility = (StatusBarVisibility)(SystemUiFlags.LayoutStable | SystemUiFlags.LayoutFullscreen);
+            }
             Window?.SetStatusBarColor(Android.Graphics.Color.Transparent);
         }
     }
