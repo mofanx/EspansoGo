@@ -41,11 +41,11 @@ else
         <MudTabPanel Text="@localizationService.GetString("Matches")">
             @if (!canTextExpand)
             {
-                <MudPaper Class="pa-6 mb-4" Elevation="2">
-                    <MudStack AlignItems="AlignItems.Center" Spacing="3">
-                        <MudIcon Icon="@Icons.Material.Filled.AccessibilityNew" Size="Size.Large" Color="Color.Primary" />
-                        <MudText Typo="Typo.subtitle1" Align="Align.Center">@localizationService.GetString("AccessibilityPermissionMessage")</MudText>
-                        <MudButton Color="Color.Primary" Variant="Variant.Filled" Size="Size.Large" StartIcon="@Icons.Material.Filled.Settings"
+                <MudPaper Class="pa-3 mb-3" Elevation="1">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="2">
+                        <MudIcon Icon="@Icons.Material.Filled.AccessibilityNew" Size="Size.Medium" Color="Color.Primary" />
+                        <MudText Typo="Typo.body2" Align="Align.Center">@localizationService.GetString("AccessibilityPermissionMessage")</MudText>
+                        <MudButton Color="Color.Primary" Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Settings"
                                    @onclick="OpenSettings">@localizationService.GetString("ConsentAndOpenSettings")</MudButton>
                     </MudStack>
                 </MudPaper>
