@@ -53,28 +53,37 @@ jobs:
     - name: Restore Dependencies
       run: dotnet restore src/EspansoGo.csproj
 
-    - name: Build Release
-      run: dotnet build src/EspansoGo.csproj -c Release -f net9.0-android35.0 --no-restore
+    - name: Build Release (arm64-v8a)
+      run: dotnet build src/EspansoGo.csproj -c Release -f net9.0-android35.0 -r android-arm64 --no-restore
       env:
         KEYSTORE_PATH: /tmp/espansogo.jks
         KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         KEY_PASS: ${{ secrets.KEY_PASS }}
 
-    - name: Rename APKs for release
+    - name: Build Release (armeabi-v7a)
+      run: dotnet build src/EspansoGo.csproj -c Release -f net9.0-android35.0 -r android-arm --no-restore
+      env:
+        KEYSTORE_PATH: /tmp/espansogo.jks
+        KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASS: ${{ secrets.KEY_PASS }}
+
+    - name: Build Release (x86_64)
+      run: dotnet build src/EspansoGo.csproj -c Release -f net9.0-android35.0 -r android-x64 --no-restore
+      env:
+        KEYSTORE_PATH: /tmp/espansogo.jks
+        KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASS: ${{ secrets.KEY_PASS }}
+
+    - name: Collect APKs for release
       run: |
         VERSION="${{ steps.version.outputs.version }}"
-        cd src/bin/Release/net9.0-android35.0
         mkdir -p /tmp/release-assets
-        for f in *-Signed.apk; do
-          base="${f%-Signed.apk}"
-          case "$base" in
-            *-arm64-v8a)   cp "$f" "/tmp/release-assets/espansogo-v${VERSION}-arm64-v8a.apk";;
-            *-armeabi-v7a) cp "$f" "/tmp/release-assets/espansogo-v${VERSION}-armeabi-v7a.apk";;
-            *-x86_64)      cp "$f" "/tmp/release-assets/espansogo-v${VERSION}-x86_64.apk";;
-            *)             cp "$f" "/tmp/release-assets/espansogo-v${VERSION}-fat.apk";;
-          esac
-        done
+        cp src/bin/Release/net9.0-android35.0/android-arm64/*-Signed.apk /tmp/release-assets/espansogo-v${VERSION}-arm64-v8a.apk 2>/dev/null || true
+        cp src/bin/Release/net9.0-android35.0/android-arm/*-Signed.apk /tmp/release-assets/espansogo-v${VERSION}-armeabi-v7a.apk 2>/dev/null || true
+        cp src/bin/Release/net9.0-android35.0/android-x64/*-Signed.apk /tmp/release-assets/espansogo-v${VERSION}-x86_64.apk 2>/dev/null || true
         ls -lh /tmp/release-assets/
 
     - name: Create GitHub Release
@@ -92,4 +101,3 @@ jobs:
           | `espansogo-v${{ steps.version.outputs.version }}-arm64-v8a.apk` | arm64-v8a | 95% modern devices (recommended) |
           | `espansogo-v${{ steps.version.outputs.version }}-armeabi-v7a.apk` | armeabi-v7a | Older 32-bit devices |
           | `espansogo-v${{ steps.version.outputs.version }}-x86_64.apk` | x86_64 | Emulators / Chromebooks |
-          | `espansogo-v${{ steps.version.outputs.version }}-fat.apk` | All | Universal compatibility |

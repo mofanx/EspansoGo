@@ -29,11 +29,7 @@
     <AndroidUseAapt2>True</AndroidUseAapt2>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug' And $(TargetFramework.Contains('android'))">
-    <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release' And $(TargetFramework.Contains('android'))">
-    <AndroidCreatePackagePerAbi>True</AndroidCreatePackagePerAbi>
     <AndroidKeyStore>True</AndroidKeyStore>
     <AndroidSigningKeyStore>$(KEYSTORE_PATH)</AndroidSigningKeyStore>
     <AndroidSigningStorePass>$(KEYSTORE_PASS)</AndroidSigningStorePass>

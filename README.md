@@ -44,7 +44,6 @@ A configuration-based text expansion app for Android, compatible with [espanso](
 > - `arm64-v8a` — Recommended, covers 95% of modern devices
 > - `armeabi-v7a` — For older 32-bit devices
 > - `x86_64` — For emulators / Chromebooks
-> - `fat` — Universal, works on all devices (larger file)
 
 ## Supported Date Formats
 
