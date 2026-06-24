@@ -28,6 +28,7 @@
     <AndroidUseFastDeployment>false</AndroidUseFastDeployment>
     <AndroidUseAapt2>True</AndroidUseAapt2>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
+    <RuntimeIdentifiers>android-arm64;android-arm;android-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release' And $(TargetFramework.Contains('android'))">
     <AndroidKeyStore>True</AndroidKeyStore>
