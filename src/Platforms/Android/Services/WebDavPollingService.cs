@@ -7,7 +7,7 @@ using Android.Content;
 using Android.Net;
 #endif
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     public class WebDavPollingService : IDisposable
     {

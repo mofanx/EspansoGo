@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Maui.Storage;
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     /// <summary>
     /// Manages Git Personal Access Tokens (PAT) using secure platform storage.
@@ -57,7 +57,7 @@ namespace Expandroid.Services
 
         /// <summary>
         /// Builds an authenticated URL by embedding username:token into the HTTPS URL.
-        /// e.g. https://github.com/user/repo.git â†’ https://username:token@github.com/user/repo.git
+        /// e.g. https://github.com/user/repo.git â†?https://username:token@github.com/user/repo.git
         /// </summary>
         public string BuildAuthenticatedUrl(string repoUrl, string username, string pat)
         {

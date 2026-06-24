@@ -1,4 +1,4 @@
-﻿namespace Expandroid.Models
+namespace EspansoGo.Models
 {
     // for temporary hacks
     internal interface ICheckIfActivated

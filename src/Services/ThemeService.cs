@@ -1,7 +1,7 @@
 #nullable enable
 using Microsoft.Maui.Storage;
 
-namespace Expandroid.Services;
+namespace EspansoGo.Services;
 
 public class ThemeService : IThemeService
 {

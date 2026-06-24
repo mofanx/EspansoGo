@@ -1,8 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 
-namespace Expandroid.Models
+namespace EspansoGo.Models
 {
     public class DictWrapper
     {

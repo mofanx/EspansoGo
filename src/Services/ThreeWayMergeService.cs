@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Expandroid.Models;
+using EspansoGo.Models;
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     /// <summary>
     /// YAML structure-aware three-way merge at the trigger level.
@@ -66,25 +66,25 @@ namespace Expandroid.Services
 
                 if (inBase && !inLocal && !inRemote)
                 {
-                    // Both deleted â†’ skip (deleted)
+                    // Both deleted â†?skip (deleted)
                     continue;
                 }
 
                 if (inBase && !inLocal && inRemote && !MatchChangedFromBase(baseSnap, remoteMatch))
                 {
-                    // Base exists, Local deleted, Remote unchanged â†’ delete (skip)
+                    // Base exists, Local deleted, Remote unchanged â†?delete (skip)
                     continue;
                 }
 
                 if (inBase && inLocal && !inRemote && !MatchChangedFromBase(baseSnap, localMatch))
                 {
-                    // Base exists, Remote deleted, Local unchanged â†’ delete (skip)
+                    // Base exists, Remote deleted, Local unchanged â†?delete (skip)
                     continue;
                 }
 
                 if (inBase && !inLocal && inRemote && MatchChangedFromBase(baseSnap, remoteMatch))
                 {
-                    // Local deleted, Remote modified â†’ conflict, keep remote + warning
+                    // Local deleted, Remote modified â†?conflict, keep remote + warning
                     result.MergedDict[key] = remoteMatch;
                     result.Warnings.Add($"'{key}': deleted locally but modified remotely, kept remote version");
                     continue;
@@ -92,7 +92,7 @@ namespace Expandroid.Services
 
                 if (inBase && inLocal && !inRemote && MatchChangedFromBase(baseSnap, localMatch))
                 {
-                    // Remote deleted, Local modified â†’ conflict, keep local + warning
+                    // Remote deleted, Local modified â†?conflict, keep local + warning
                     result.MergedDict[key] = localMatch;
                     result.Warnings.Add($"'{key}': deleted remotely but modified locally, kept local version");
                     continue;
@@ -105,7 +105,7 @@ namespace Expandroid.Services
 
                     if (localChanged && remoteChanged)
                     {
-                        // Both modified same trigger â†’ whole replacement, keep remote + warning
+                        // Both modified same trigger â†?whole replacement, keep remote + warning
                         result.MergedDict[key] = remoteMatch;
                         result.Conflicts.Add(key);
                         result.Warnings.Add($"'{key}': both sides modified, kept remote version (whole replacement)");
@@ -120,7 +120,7 @@ namespace Expandroid.Services
                     }
                     else
                     {
-                        // Neither changed â†’ keep either (they're the same)
+                        // Neither changed â†?keep either (they're the same)
                         result.MergedDict[key] = localMatch;
                     }
                     continue;
@@ -128,7 +128,7 @@ namespace Expandroid.Services
 
                 if (!inBase && inLocal && inRemote)
                 {
-                    // Both added same trigger â†’ keep remote + warning
+                    // Both added same trigger â†?keep remote + warning
                     result.MergedDict[key] = remoteMatch;
                     result.Conflicts.Add(key);
                     result.Warnings.Add($"'{key}': both sides added same trigger, kept remote version");
@@ -137,14 +137,14 @@ namespace Expandroid.Services
 
                 if (!inBase && inLocal && !inRemote)
                 {
-                    // Local new addition â†’ keep
+                    // Local new addition â†?keep
                     result.MergedDict[key] = localMatch;
                     continue;
                 }
 
                 if (!inBase && !inLocal && inRemote)
                 {
-                    // Remote new addition â†’ keep
+                    // Remote new addition â†?keep
                     result.MergedDict[key] = remoteMatch;
                     continue;
                 }

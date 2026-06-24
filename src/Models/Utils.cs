@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Expandroid.Models
+namespace EspansoGo.Models
 {
     public static class Utils
     {

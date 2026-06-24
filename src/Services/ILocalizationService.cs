@@ -1,7 +1,7 @@
 #nullable enable
 using System.Globalization;
 
-namespace Expandroid.Services;
+namespace EspansoGo.Services;
 
 public interface ILocalizationService
 {

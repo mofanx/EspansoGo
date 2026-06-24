@@ -9,10 +9,10 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Expandroid.Models;
+using EspansoGo.Models;
 using Microsoft.Maui.Storage;
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     public class HubClient : IDisposable
     {
@@ -34,7 +34,7 @@ namespace Expandroid.Services
             {
                 Timeout = TimeSpan.FromSeconds(30)
             };
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Expandroid/2.0");
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("EspansoGo/1.0");
 
             var appData = FileSystem.Current.AppDataDirectory;
             _cachePath = Path.Combine(appData, CacheFileName);

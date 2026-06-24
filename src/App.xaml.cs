@@ -1,4 +1,4 @@
-﻿namespace Expandroid;
+namespace EspansoGo;
 
 public partial class App : Application
 {

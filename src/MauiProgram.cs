@@ -1,11 +1,11 @@
-﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Storage;
-using Expandroid.Models;
-using Expandroid.Services;
+using EspansoGo.Models;
+using EspansoGo.Services;
 using MudBlazor.Services;
 using Microsoft.Maui.Storage;
 
-namespace Expandroid;
+namespace EspansoGo;
 
 public static class MauiProgram
 {

@@ -1,4 +1,4 @@
-ï»¿using Android;
+using Android;
 using Android.AccessibilityServices;
 using Android.App;
 using Android.Content;
@@ -10,7 +10,7 @@ using Android.Views;
 using Android.Views.Accessibility;
 using Android.Widget;
 using CommunityToolkit.Mvvm.Messaging;
-using Expandroid.Models;
+using EspansoGo.Models;
 using Microsoft.Maui.ApplicationModel.DataTransfer;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
@@ -18,13 +18,13 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Linq;
 
-[Service(Exported = false, Label = "Expandroid", Permission = Manifest.Permission.BindAccessibilityService)]
+[Service(Exported = false, Label = "EspansoGo", Permission = Manifest.Permission.BindAccessibilityService)]
 [IntentFilter(["android.accessibilityservice.AccessibilityService"])]
 [MetaData("android.accessibilityservice", Resource = "@xml/accessibility_service")]
 public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.View.IOnTouchListener
 {
-    private Dictionary<string, Expandroid.Models.Match> dict;
-    private Dictionary<Regex, Expandroid.Models.Match> regexDict;
+    private Dictionary<string, EspansoGo.Models.Match> dict;
+    private Dictionary<Regex, EspansoGo.Models.Match> regexDict;
     private List<Var> globals;
     private readonly Bundle CursorArgs = new();
     private readonly Bundle TextArgs = new();
@@ -91,7 +91,7 @@ public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.
                 if (File.Exists(AppSettings.DictPath))
                 {
                     var json = File.ReadAllText(AppSettings.DictPath);
-                    var loaded = JsonSerializer.Deserialize<Dictionary<string, Expandroid.Models.Match>>(json);
+                    var loaded = JsonSerializer.Deserialize<Dictionary<string, EspansoGo.Models.Match>>(json);
                     foreach (var kv in loaded)
                     {
                         if (!string.IsNullOrEmpty(kv.Value.Regex))
@@ -123,7 +123,7 @@ public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.
             if (File.Exists(AppSettings.DictPath))
             {
                 using var stream = File.OpenRead(AppSettings.DictPath);
-                dict = JsonSerializer.Deserialize<Dictionary<string, Expandroid.Models.Match>>(stream);
+                dict = JsonSerializer.Deserialize<Dictionary<string, EspansoGo.Models.Match>>(stream);
                 foreach (var item in dict.Values)
                 {
                     if (!string.IsNullOrEmpty(item.Regex))
@@ -245,7 +245,7 @@ public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.
                     var focused = FindFocusedEditText(root);
 
                     // --------------------------------------------------
-                    // 1. FOCUS ACTIVE â†’ KEEP ALIVE + PROCESS TEXT
+                    // 1. FOCUS ACTIVE ¡ú KEEP ALIVE + PROCESS TEXT
                     // --------------------------------------------------
                     if (focused != null)
                     {
@@ -272,7 +272,7 @@ public class ExpanderAccessibilityservice : AccessibilityService, Android.Views.
                     }
 
                     // --------------------------------------------------
-                    // 2. NO FOCUS â†’ CHECK INACTIVITY TIMEOUT
+                    // 2. NO FOCUS ¡ú CHECK INACTIVITY TIMEOUT
                     // --------------------------------------------------
                     if (_lastFocusTime.TryGetValue(packageName, out var lastFocus))
                     {

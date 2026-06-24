@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Messaging;
-using Expandroid.Models;
+using EspansoGo.Models;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     public class ImportResult
     {

@@ -59,7 +59,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppTitle" xml:space="preserve">
-    <value>Expandroid</value>
+    <value>EspansoGo</value>
   </data>
   <data name="TextExpanderTab" xml:space="preserve">
     <value>文本扩展器（无障碍服务）</value>
@@ -371,7 +371,7 @@
     <value>请确保日期扩展参数格式存在！</value>
   </data>
   <data name="WelcomeMessage" xml:space="preserve">
-    <value>欢迎使用 Expandroid！添加触发词和替换文本，然后保存即可开始使用文本扩展。你也可以导入现有的 espanso 配置。</value>
+    <value>欢迎使用 EspansoGo！添加触发词和替换文本，然后保存即可开始使用文本扩展。你也可以导入现有的 espanso 配置。</value>
   </data>
   <data name="SaveSuccessfulMessage" xml:space="preserve">
     <value>成功保存所有关键词！</value>

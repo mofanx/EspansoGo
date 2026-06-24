@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Expandroid.Models;
+using EspansoGo.Models;
 using Microsoft.Maui.Storage;
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     /// <summary>
     /// Manages sync snapshots for three-way merge.

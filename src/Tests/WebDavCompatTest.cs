@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Expandroid.Services;
+using EspansoGo.Services;
 
-namespace Expandroid.Tests
+namespace EspansoGo.Tests
 {
     /// <summary>
-    /// WebDAV compatibility test harness for Nextcloud, 坚果云, Synology NAS, rclone.
+    /// WebDAV compatibility test harness for Nextcloud, 坚果�? Synology NAS, rclone.
     /// Run manually with a real WebDAV server to verify PROPFIND/GET/PUT/MKCOL/DELETE.
     /// </summary>
     public class WebDavCompatTest
@@ -67,7 +67,7 @@ namespace Expandroid.Tests
         public async Task<bool> TestMkcol(CancellationToken ct = default)
         {
             using var client = new WebDavClient(_baseUri, _username, _password);
-            var testDir = $"expandroid-test-{DateTime.UtcNow:yyyyMMddHHmmss}";
+            var testDir = $"espansogo-test-{DateTime.UtcNow:yyyyMMddHHmmss}";
             var ok = await client.MkcolAsync(testDir, ct);
             if (ok) await client.DeleteFileAsync(testDir, ct);
             return ok;
@@ -76,7 +76,7 @@ namespace Expandroid.Tests
         public async Task<bool> TestPutAndGet(CancellationToken ct = default)
         {
             using var client = new WebDavClient(_baseUri, _username, _password);
-            var testFile = $"expandroid-test-{DateTime.UtcNow:yyyyMMddHHmmss}.yml";
+            var testFile = $"espansogo-test-{DateTime.UtcNow:yyyyMMddHHmmss}.yml";
             var testContent = "matches:\n  - trigger: test\n    replace: hello\n";
             var putOk = await client.PutFileAsync(testFile, testContent, ct);
             if (!putOk) return false;
@@ -88,7 +88,7 @@ namespace Expandroid.Tests
         public async Task<bool> TestDelete(CancellationToken ct = default)
         {
             using var client = new WebDavClient(_baseUri, _username, _password);
-            var testFile = $"expandroid-del-test-{DateTime.UtcNow:yyyyMMddHHmmss}.yml";
+            var testFile = $"espansogo-del-test-{DateTime.UtcNow:yyyyMMddHHmmss}.yml";
             await client.PutFileAsync(testFile, "test", ct);
             var delOk = await client.DeleteFileAsync(testFile, ct);
             return delOk;
@@ -97,7 +97,7 @@ namespace Expandroid.Tests
         public async Task<bool> TestETag(CancellationToken ct = default)
         {
             using var client = new WebDavClient(_baseUri, _username, _password);
-            var testFile = $"expandroid-etag-test-{DateTime.UtcNow:yyyyMMddHHmmss}.yml";
+            var testFile = $"espansogo-etag-test-{DateTime.UtcNow:yyyyMMddHHmmss}.yml";
             await client.PutFileAsync(testFile, "test", ct);
             var etag1 = await client.GetETagAsync(testFile, ct);
             await client.PutFileAsync(testFile, "test2", ct);

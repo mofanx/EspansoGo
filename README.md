@@ -1,57 +1,100 @@
-# Configuration based espanso compatible app for android. X-platform expansions
-  <p align="center">
-    <a href="https://github.com/lochidev/TextComparePro/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/lochidev/TextComparePro/issues">Request Feature</a>
-    ·
-    <a href="https://github.com/lochidev/TextComparePro/releases">Releases</a>
-    ·
-    <a href="https://github.com/lochidev/TextComparePro/blob/master/examples/config.yml">Example config</a>
-    ·
-    <a href="https://espanso.org/docs/get-started/">Espanso docs</a>
-  </p>
+<p align="center">
+  <strong>English</strong> | <a href="README.zh-CN.md">简体中文</a>
+</p>
 
-Send custom messages with a trigger. Want to quickly type out the current date in a specific format? Or do you want your emojis to replace your triggers? You can do it all cross platform with espanso but now on android too with this app!
+# EspansoGo
 
 <p align="center">
-    <a href="https://apt.izzysoft.de/fdroid/index/apk/com.dingleinc.texttoolspro"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80"></a>
-    <a href="https://play.google.com/store/apps/details?id=com.dingleinc.texttoolspro"><img src="https://cdn.rawgit.com/steverichey/google-play-badge-svg/master/img/en_get.svg" height="80"></a>
-    <a href="https://github.com/lochidev/TextComparePro/releases/latest"><img src="https://raw.githubusercontent.com/andOTP/andOTP/master/assets/badges/get-it-on-github.png" height="80"></a>
-  </p>
+  <a href="https://github.com/mofanx/EspansoGo/issues">Report Bug</a>
+  ·
+  <a href="https://github.com/mofanx/EspansoGo/issues">Request Feature</a>
+  ·
+  <a href="https://github.com/mofanx/EspansoGo/releases">Releases</a>
+  ·
+  <a href="https://espanso.org/docs/get-started/">Espanso docs</a>
+</p>
 
-# Announcements
-Update: 7/18/2025
+A configuration-based text expansion app for Android, compatible with [espanso](https://espanso.org) config files. Define triggers and replacements in YAML, and let EspansoGo do the typing for you.
 
-I've decided that I will only update the app once every 6 months. This is due to increased workload from my studies. I believe this app is now feature complete and has achieved it's original goals. What we have achieved so far,
-- Free and open source forever.
-- Provides unlimited unrestricted expansions.
-- Supports most of essential espanso features including forms.
-- Uses no internet permissions.
-- Provides a way to keep your config files in sync with desktop espanso program. See <a href="https://github.com/lochidev/Expandroid/issues/55">#55</a> 
+> This project is inspired by and rewrites [Expandroid](https://github.com/lochidev/Expandroid) by [lochidev](https://github.com/lochidev), reimplemented with .NET MAUI + Blazor Hybrid. Licensed under the same open source license.
 
-The app will surely receive updates for all major android releases. Thank you for using the app and all the stars :D
+<p align="center">
+  <a href="https://github.com/mofanx/EspansoGo/releases/latest"><img src="https://raw.githubusercontent.com/andOTP/andOTP/master/assets/badges/get-it-on-github.png" height="80"></a>
+</p>
 
-# Notes 
-Espanso configuration YML files will take a few tries to parse correctly. Try removing some matches, and make sure it's compliant with the YML specs. Some working examples can be found <a href="https://github.com/lochidev/TextComparePro/blob/master/examples/config.yml">here</a>. Please also note that only the following extensions are supported -> date, clipboard, random and echo. Finally, note that not all espanso/rust chrono date time formats are supported. Supported formats are,
-- %Y, %m, %b, %B, %h, %d, %e, %a, %A, %j, %w, %u, %D, %F, %H, %I, %p, %M, %S, %R, %T, %r
+## Features
 
-You can further customize date time formats by referring to the C# DateTime.ToString() method documentation from Microsoft.
+- **Free and open source** — forever, no ads, no tracking
+- **Unlimited expansions** — no caps on matches or triggers
+- **Espanso compatible** — reuse your existing YAML config files
+- **Variable types** — `echo`, `date`, `random`, `clipboard`, `choice`, `form`, `shell`, `script`, `http`, `javascript`, `match`
+- **Forms support** — multi-line, choice & list forms
+- **Cross-device sync** — WebDAV & Git sync to keep configs in sync with desktop espanso
+- **No internet permission** — your data stays on your device
+- **Multi-language UI** — English & Chinese, with more to come
 
-Clipboard extension will not work on android 10 or higher due to security measures introduced by google. However a workaround was found at issue: <a href="https://github.com/lochidev/Expandroid/issues/35#issue-2531110035">#35</a> and should work on all devices after v7.1.0
+## Getting Started
 
-Note: I have not tested this app on android versions below 12.
+1. Download the latest APK from [Releases](https://github.com/mofanx/EspansoGo/releases/latest)
+2. Install and grant Accessibility Service permission
+3. Import your espanso YAML config or create new matches in the editor
+4. Type a trigger anywhere and watch it expand!
 
-Starting with v7.0.0 forms support has been added.
-Multi-line, choice & list have been added.
-Note that everything under "Using Forms with Script and Shell extensions" is not supported in the document: https://espanso.org/docs/matches/forms/
-# Build
+> **Which APK should I download?**
+> - `arm64-v8a` — Recommended, covers 95% of modern devices
+> - `armeabi-v7a` — For older 32-bit devices
+> - `x86_64` — For emulators / Chromebooks
+> - `fat` — Universal, works on all devices (larger file)
 
-CLI build instructions -> https://learn.microsoft.com/en-us/dotnet/maui/android/deployment/publish-cli
+## Supported Date Formats
 
-# Consider donating for work already done if you found this app useful! 💙
-<a href="https://www.buymeacoffee.com/lochi" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-yellow.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+The following chrono date time formats are supported:
 
-BTC - bc1q0tv7u3yngq3xpmwlu4gzv8rnez27pv3xcsk6t8
+```
+%Y, %m, %b, %B, %h, %d, %e, %a, %A, %j, %w, %u, %D, %F, %H, %I, %p, %M, %S, %R, %T, %r
+```
 
-LTC - ltc1qjphn23kql69c0ul6qu88sdsf09qxceswt78yey
+You can also use C# `DateTime.ToString()` format strings for further customization.
 
+## Notes
+
+- Espanso YAML files may need a few tries to parse correctly. Ensure compliance with YAML specs.
+- Clipboard extension does not work on Android 10+ due to Google's security restrictions. A workaround is available since v1.0.
+- Forms support includes multi-line, choice & list. "Using Forms with Script and Shell extensions" from the espanso docs is not supported.
+- Not tested on Android versions below 12.
+
+## Build
+
+This is a .NET MAUI + Blazor Hybrid project using MudBlazor.
+
+```bash
+# Install MAUI workload
+dotnet workload install maui-android
+
+# Restore dependencies
+dotnet restore src/EspansoGo.csproj
+
+# Build Debug
+dotnet build src/EspansoGo.csproj -c Debug -f net9.0-android35.0
+
+# Build Release (requires keystore env vars)
+dotnet build src/EspansoGo.csproj -c Release -f net9.0-android35.0
+```
+
+For detailed CLI publishing instructions, see [Microsoft's MAUI deployment guide](https://learn.microsoft.com/en-us/dotnet/maui/android/deployment/publish-cli).
+
+### CI/CD
+
+- **Push to main** → automatic build, artifacts available for download
+- **Tag `v*`** → automatic GitHub Release with signed APKs (per-architecture)
+
+## Tech Stack
+
+- [.NET 9 MAUI](https://learn.microsoft.com/dotnet/maui/) — Cross-platform framework
+- [Blazor Hybrid](https://learn.microsoft.com/aspnet/core/blazor/hybrid/) — UI rendering
+- [MudBlazor](https://mudblazor.com/) — Material Design component library
+- [YamlDotNet](https://github.com/aaubry/YamlDotNet) — YAML parsing
+
+## License
+
+Apache License 2.0. See [LICENSE](LICENSE) for details.

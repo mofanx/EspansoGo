@@ -1,5 +1,5 @@
-﻿using Microsoft.Maui.Storage;
-namespace Expandroid.Models
+using Microsoft.Maui.Storage;
+namespace EspansoGo.Models
 {
     internal static class AppSettings
     {

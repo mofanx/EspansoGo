@@ -2,7 +2,7 @@
 using Android.Content;
 using AndroidX.Work;
 using CommunityToolkit.Mvvm.Messaging;
-using Expandroid.Models;
+using EspansoGo.Models;
 using Microsoft.Maui.Storage;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     public class SyncWorker : Worker
     {
@@ -105,7 +105,7 @@ namespace Expandroid.Services
 
             WorkManager.GetInstance(Android.App.Application.Context)
                 .EnqueueUniquePeriodicWork(
-                    "expandroid-sync",
+                    "espansogo-sync",
                     ExistingPeriodicWorkPolicy.Keep,
                     request);
         }
@@ -113,7 +113,7 @@ namespace Expandroid.Services
         public static void CancelPeriodicSync()
         {
             WorkManager.GetInstance(Android.App.Application.Context)
-                .CancelUniqueWork("expandroid-sync");
+                .CancelUniqueWork("espansogo-sync");
         }
     }
 }

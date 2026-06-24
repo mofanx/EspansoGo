@@ -6,11 +6,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Expandroid.Models;
+using EspansoGo.Models;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     public class MatchGroup
     {

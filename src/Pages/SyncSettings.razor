@@ -1,6 +1,6 @@
 @page "/syncsettings"
-@using Expandroid.Services
-@using Expandroid.Models
+@using EspansoGo.Services
+@using EspansoGo.Models
 @using System.IO
 @using System.Text.Json
 @using CommunityToolkit.Mvvm.Messaging
@@ -10,7 +10,7 @@
 @inject ISnackbar Snackbar
 @inject ILocalizationService localizationService
 @inject NavigationManager NavigationManager
-@inject Expandroid.Services.IDialogService dialogService
+@inject EspansoGo.Services.IDialogService dialogService
 @implements IDisposable
 
 <MudText Typo="Typo.h4" Align="Align.Center" class="mb-4">@localizationService.GetString("SyncSettings")</MudText>

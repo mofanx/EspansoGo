@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.Messaging.Messages;
-using Expandroid.Models;
+using EspansoGo.Models;
 
 public class AcGlobalsMessage : ValueChangedMessage<List<Var>>
 {

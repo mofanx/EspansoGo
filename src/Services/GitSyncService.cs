@@ -5,10 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Expandroid.Models;
+using EspansoGo.Models;
 using Microsoft.Maui.Storage;
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     /// <summary>
     /// Git sync via Termux's git installation.
@@ -93,11 +93,11 @@ namespace Expandroid.Services
                     GlobalVars = globalVars ?? new List<Var>()
                 };
                 var yaml = _yamlWorkspace.SerializeMatchGroup(group);
-                await File.WriteAllTextAsync(Path.Combine(matchDir, "expandroid.yml"), yaml, ct);
+                await File.WriteAllTextAsync(Path.Combine(matchDir, "espansogo.yml"), yaml, ct);
 
                 await RunGitAsync("add -A", _localRepoPath, ct);
                 var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
-                await RunGitAsync($"commit -m \"Expandroid sync {timestamp}\" --allow-empty", _localRepoPath, ct);
+                await RunGitAsync($"commit -m \"espansogo sync {timestamp}\" --allow-empty", _localRepoPath, ct);
                 await RunGitAsync($"push origin {_branch}", _localRepoPath, ct);
                 return true;
             }

@@ -1,14 +1,14 @@
-﻿using Android.App;
+using Android.App;
 using Android.Content;
 using Android.OS;
 using CommunityToolkit.Mvvm.Messaging;
-using Expandroid.Models;
+using EspansoGo.Models;
 using System.Text.Json;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-[BroadcastReceiver(Enabled = true, Exported = true, Name = "com.dingleinc.texttoolspro.ConfigImportReceiver")]
-[IntentFilter(new[] { "com.dingleinc.texttoolspro.IMPORT_CONFIG" })]
+[BroadcastReceiver(Enabled = true, Exported = true, Name = "com.mofanx.espansogo.ConfigImportReceiver")]
+[IntentFilter(new[] { "com.mofanx.espansogo.IMPORT_CONFIG" })]
 public class ConfigImportReceiver : BroadcastReceiver
 {
     //// Tasker and MacroDroid package names
@@ -16,7 +16,7 @@ public class ConfigImportReceiver : BroadcastReceiver
     //{
     //    "net.dinglisch.android.taskerm",    // Tasker
     //    "com.arlosoft.macrodroid",           // MacroDroid
-    //    "com.dingleinc.texttoolspro"
+    //    "com.mofanx.espansogo"
     //};
     private void SendMessage(string cmd, Match value)
     {
@@ -106,14 +106,14 @@ public class ConfigImportReceiver : BroadcastReceiver
                     var jsonStr = JsonSerializer.Serialize(dict);
                     File.WriteAllText(AppSettings.DictPath, jsonStr);
                     SendMessage("Reset", new Match());
-                    Intent resultIntent = new Intent("com.dingleinc.texttoolspro.CONFIG_RESULT");
+                    Intent resultIntent = new Intent("com.mofanx.espansogo.CONFIG_RESULT");
                     resultIntent.PutExtra("status", 0); // or 1 for failure
                     context.SendBroadcast(resultIntent);
 
                 }
                 catch (Exception e)
                 {
-                    Intent resultIntent = new Intent("com.dingleinc.texttoolspro.CONFIG_RESULT");
+                    Intent resultIntent = new Intent("com.mofanx.espansogo.CONFIG_RESULT");
                     resultIntent.PutExtra("status", e.Message); // or 1 for failure
                     context.SendBroadcast(resultIntent);
                 }

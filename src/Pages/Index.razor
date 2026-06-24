@@ -1,14 +1,14 @@
-﻿@page "/"
+@page "/"
 @using CommunityToolkit.Maui.Storage;
 @using CommunityToolkit.Mvvm.Messaging;
-@using Expandroid.Models;
+@using EspansoGo.Models;
 @using System.Text.Json;
 @using System.Text;
 
 @using YamlDotNet.Serialization;
 @using YamlDotNet.Serialization.NamingConventions;
-@using Expandroid.Services;
-@inject Expandroid.Services.IDialogService dialogService
+@using EspansoGo.Services;
+@inject EspansoGo.Services.IDialogService dialogService
 @inject ILocalizationService localizationService
 @inject ICheckIfActivated acService
 @inject IFileSaver fileSaver

@@ -10,7 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     public class SafManager
     {

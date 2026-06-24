@@ -1,4 +1,4 @@
-﻿using Android;
+using Android;
 using Android.AccessibilityServices;
 using Android.Content;
 using Android.Content.PM;
@@ -6,10 +6,10 @@ using Android.Provider;
 using Android.Views.Accessibility;
 using AndroidX.Core.App;
 using AndroidX.Core.Content;
-using Expandroid.Models;
+using EspansoGo.Models;
 using Microsoft.Maui.ApplicationModel;
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     internal class CheckIfActivated : ICheckIfActivated
     {

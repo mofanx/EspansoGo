@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Expandroid.Models
+namespace EspansoGo.Models
 {
     public class InstalledPackage
     {

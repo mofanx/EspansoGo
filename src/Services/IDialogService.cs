@@ -1,4 +1,4 @@
-﻿namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     internal interface IDialogService
     {

@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     public class WebDavFileInfo
     {
@@ -48,7 +48,7 @@ namespace Expandroid.Services
                     new AuthenticationHeaderValue("Basic", credentials);
             }
 
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Expandroid/2.0");
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("EspansoGo/1.0");
         }
 
         private const string PropfindBody = @"<?xml version=""1.0"" encoding=""utf-8""?>

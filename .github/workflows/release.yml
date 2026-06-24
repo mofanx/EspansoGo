@@ -1,0 +1,95 @@
+name: Release EspansoGo
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v1.0.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Determine version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          TAG="${{ github.event.inputs.tag }}"
+        else
+          TAG="${GITHUB_REF#refs/tags/}"
+        fi
+        VERSION="${TAG#v}"
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Set up .NET 9
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Install .NET MAUI Workload
+      run: dotnet workload install maui-android
+
+    - name: Decode Keystore
+      run: |
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > /tmp/espansogo.jks
+
+    - name: Restore Dependencies
+      run: dotnet restore src/EspansoGo.csproj
+
+    - name: Build Release
+      run: dotnet build src/EspansoGo.csproj -c Release -f net9.0-android35.0 --no-restore
+      env:
+        KEYSTORE_PATH: /tmp/espansogo.jks
+        KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASS: ${{ secrets.KEY_PASS }}
+
+    - name: Rename APKs for release
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        cd src/bin/Release/net9.0-android35.0
+        mkdir -p /tmp/release-assets
+        for f in *-Signed.apk; do
+          base="${f%-Signed.apk}"
+          case "$base" in
+            *-arm64-v8a)   cp "$f" "/tmp/release-assets/espansogo-v${VERSION}-arm64-v8a.apk";;
+            *-armeabi-v7a) cp "$f" "/tmp/release-assets/espansogo-v${VERSION}-armeabi-v7a.apk";;
+            *-x86_64)      cp "$f" "/tmp/release-assets/espansogo-v${VERSION}-x86_64.apk";;
+            *)             cp "$f" "/tmp/release-assets/espansogo-v${VERSION}-fat.apk";;
+          esac
+        done
+        ls -lh /tmp/release-assets/
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.version.outputs.tag }}
+        name: EspansoGo ${{ steps.version.outputs.tag }}
+        generate_release_notes: true
+        files: /tmp/release-assets/*.apk
+        body: |
+          ## Downloads
+
+          | File | Architecture | Devices |
+          |------|-------------|---------|
+          | `espansogo-v${{ steps.version.outputs.version }}-arm64-v8a.apk` | arm64-v8a | 95% modern devices (recommended) |
+          | `espansogo-v${{ steps.version.outputs.version }}-armeabi-v7a.apk` | armeabi-v7a | Older 32-bit devices |
+          | `espansogo-v${{ steps.version.outputs.version }}-x86_64.apk` | x86_64 | Emulators / Chromebooks |
+          | `espansogo-v${{ steps.version.outputs.version }}-fat.apk` | All | Universal compatibility |

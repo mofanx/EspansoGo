@@ -1,12 +1,12 @@
 #if ANDROID
 using Android.Database;
 using Android.OS;
-using Expandroid.Models;
+using EspansoGo.Models;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     public class SafObserver : ContentObserver
     {

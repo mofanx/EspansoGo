@@ -1,5 +1,5 @@
 #nullable enable
-namespace Expandroid.Services;
+namespace EspansoGo.Services;
 
 public enum AppTheme
 {

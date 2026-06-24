@@ -1,4 +1,4 @@
-name: Build Expandroid
+name: Build EspansoGo
 
 on:
   push:
@@ -30,27 +30,54 @@ jobs:
 
     - name: Decode Keystore
       run: |
-        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > /tmp/expandroid.jks
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > /tmp/espansogo.jks
 
     - name: Restore Dependencies
-      run: dotnet restore src/Expandroid.csproj
+      run: dotnet restore src/EspansoGo.csproj
 
     - name: Build Debug
-      run: dotnet build src/Expandroid.csproj -c Debug -f net9.0-android35.0 --no-restore
+      run: dotnet build src/EspansoGo.csproj -c Debug -f net9.0-android35.0 --no-restore
 
     - name: Build Release
-      run: dotnet build src/Expandroid.csproj -c Release -f net9.0-android35.0 --no-restore
+      run: dotnet build src/EspansoGo.csproj -c Release -f net9.0-android35.0 --no-restore
       env:
-        KEYSTORE_PATH: /tmp/expandroid.jks
+        KEYSTORE_PATH: /tmp/espansogo.jks
         KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         KEY_PASS: ${{ secrets.KEY_PASS }}
+
+    - name: Rename Debug APK
+      run: |
+        cd src/bin/Debug/net9.0-android35.0
+        for f in *.apk; do
+          cp "$f" "espansogo-debug-${f}"
+        done
+
+    - name: Rename Release APKs
+      run: |
+        cd src/bin/Release/net9.0-android35.0
+        for f in *-Signed.apk; do
+          base="${f%-Signed.apk}"
+          abi=""
+          case "$base" in
+            *-arm64-v8a)   abi="arm64-v8a";;
+            *-armeabi-v7a) abi="armeabi-v7a";;
+            *-x86_64)      abi="x86_64";;
+            *)             abi="fat";;
+          esac
+          cp "$f" "espansogo-release-${abi}-signed.apk"
+        done
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       if: success()
       with:
-        name: dotnet-debug-build
-        path: |
-          src/bin/Release/net9.0-android35.0/*.apk
-          src/bin/Debug/net9.0-android35.0/*.apk
+        name: EspansoGo-Debug
+        path: src/bin/Debug/net9.0-android35.0/espansogo-debug-*.apk
+
+    - name: Upload Release APKs
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: EspansoGo-Release
+        path: src/bin/Release/net9.0-android35.0/espansogo-release-*-signed.apk

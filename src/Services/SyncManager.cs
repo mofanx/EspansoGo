@@ -6,10 +6,10 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Expandroid.Models;
+using EspansoGo.Models;
 using Microsoft.Maui.Storage;
 
-namespace Expandroid.Services
+namespace EspansoGo.Services
 {
     public enum SyncMethod
     {
@@ -91,7 +91,7 @@ namespace Expandroid.Services
         private SyncConfig _config;
         private SyncState _state;
         private readonly string _stateFilePath;
-        private readonly string _syncStateFileName = ".expandroid-sync.json";
+        private readonly string _syncStateFileName = ".espansogo-sync.json";
         private WebDavClient _webDavClient;
         private GitSyncService _gitSyncService;
         private readonly CredentialManager _credentialManager;
@@ -691,7 +691,7 @@ namespace Expandroid.Services
                     GlobalVars = globalVars ?? new List<Var>()
                 };
                 var yaml = _yamlWorkspace.SerializeMatchGroup(group);
-                await _webDavClient.PutFileAsync("expandroid.yml", yaml, ct);
+                await _webDavClient.PutFileAsync("espansogo.yml", yaml, ct);
 
                 var stateJson = JsonSerializer.Serialize(_state, new JsonSerializerOptions
                 {
