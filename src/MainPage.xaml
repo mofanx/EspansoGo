@@ -6,7 +6,7 @@
              x:Class="EspansoGo.MainPage"
              BackgroundColor="{DynamicResource PageBackgroundColor}">
     <ContentPage.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="#263238" />
+        <mct:StatusBarBehavior StatusBarColor="#6366f1" />
     </ContentPage.Behaviors>
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>

@@ -991,4 +991,25 @@
   <data name="RemoteFileNotFound" xml:space="preserve">
     <value>远程文件未找到</value>
   </data>
+  <data name="PermissionCheck" xml:space="preserve">
+    <value>权限检查</value>
+  </data>
+  <data name="PermissionRequired" xml:space="preserve">
+    <value>需要无障碍权限</value>
+  </data>
+  <data name="AccessibilityEnabled" xml:space="preserve">
+    <value>无障碍服务已启用，一切就绪！</value>
+  </data>
+  <data name="SkipForNow" xml:space="preserve">
+    <value>暂时跳过</value>
+  </data>
+  <data name="GoHome" xml:space="preserve">
+    <value>返回首页</value>
+  </data>
+  <data name="RecheckPermission" xml:space="preserve">
+    <value>已启用，重新检查</value>
+  </data>
+  <data name="ToolsTitle" xml:space="preserve">
+    <value>文本工具</value>
+  </data>
 </root>

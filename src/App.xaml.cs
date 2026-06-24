@@ -1,3 +1,6 @@
+using CommunityToolkit.Mvvm.Messaging;
+using EspansoGo.Models;
+
 namespace EspansoGo;
 
 public partial class App : Application
@@ -20,5 +23,10 @@ public partial class App : Application
             MainPage = new MainPage();
         }
         return window;
+    }
+    protected override void OnResume()
+    {
+        base.OnResume();
+        WeakReferenceMessenger.Default.Send(new AppResumedMessage());
     }
 }

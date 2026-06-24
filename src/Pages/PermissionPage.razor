@@ -1,0 +1,117 @@
+@page "/permission"
+@using EspansoGo.Services
+@using EspansoGo.Models
+@using Microsoft.Maui.Storage
+@using CommunityToolkit.Mvvm.Messaging
+@inject ICheckIfActivated acService
+@inject ILocalizationService localizationService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+@if (_loading)
+{
+    <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="pa-8">
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" />
+    </MudStack>
+}
+else
+{
+    <MudStack AlignItems="AlignItems.Center" Spacing="4" Class="pa-4">
+        <MudIcon Icon="@Icons.Material.Filled.AccessibilityNew" Size="Size.Large" Color="Color.Primary" />
+
+        @if (canTextExpand)
+        {
+            <MudAlert Severity="Severity.Success" Class="w-100">
+                @localizationService.GetString("AccessibilityEnabled")
+            </MudAlert>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="GoHome" StartIcon="@Icons.Material.Filled.Home">
+                @localizationService.GetString("GoHome")
+            </MudButton>
+        }
+        else
+        {
+            <MudText Typo="Typo.h5" Align="Align.Center">@localizationService.GetString("PermissionRequired")</MudText>
+            <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Default" Class="px-4">
+                @localizationService.GetString("AccessibilityPermissionMessage")
+            </MudText>
+
+            <MudStack Spacing="2" Justify="@Justify.Center" Class="mt-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large"
+                           StartIcon="@Icons.Material.Filled.Settings" OnClick="OpenAccessibilitySettings">
+                    @localizationService.GetString("ConsentAndOpenSettings")
+                </MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large"
+                           StartIcon="@Icons.Material.Filled.Refresh" OnClick="RecheckPermission">
+                    @localizationService.GetString("RecheckPermission")
+                </MudButton>
+                <MudButton Variant="Variant.Text" Color="Color.Default" Size="Size.Large" OnClick="SkipForNow">
+                    @localizationService.GetString("SkipForNow")
+                </MudButton>
+            </MudStack>
+        }
+    </MudStack>
+}
+
+@code {
+    private bool _loading = true;
+    private bool canTextExpand = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await RecheckAsync();
+        WeakReferenceMessenger.Default.Register<AppResumedMessage>(this, (r, m) =>
+        {
+            InvokeAsync(async () => await RecheckAsync());
+        });
+    }
+
+    private async Task RecheckAsync()
+    {
+        _loading = true;
+        await Task.Run(() =>
+        {
+            canTextExpand = acService.IsActivated();
+        });
+        _loading = false;
+        if (canTextExpand)
+        {
+            Preferences.Set("permission_skipped", false);
+        }
+    }
+
+    private async Task RecheckPermission()
+    {
+        await RecheckAsync();
+    }
+
+    private void OpenAccessibilitySettings()
+    {
+        try
+        {
+            acService.OpenSettings();
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add(e.Message, Severity.Error);
+        }
+    }
+
+    private void SkipForNow()
+    {
+        Preferences.Set("permission_skipped", true);
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void GoHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    public void Dispose()
+    {
+        WeakReferenceMessenger.Default.Unregister<AppResumedMessage>(this);
+    }
+}
+

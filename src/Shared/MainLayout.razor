@@ -8,13 +8,14 @@
 
 <MudLayout>
     <TopBar />
-    <MudMainContent Class="pt-24">
+    <MudMainContent Class="pt-24" Style="padding-top: calc(96px + env(safe-area-inset-top)); padding-bottom: calc(72px + env(safe-area-inset-bottom));">
         <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4 app-content">
             <div class="page-enter">
                 @Body
             </div>
         </MudContainer>
     </MudMainContent>
+    <BottomNav />
 </MudLayout>
 
 @code {

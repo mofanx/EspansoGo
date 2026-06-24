@@ -1,0 +1,96 @@
+@inject NavigationManager NavigationManager
+@inject ILocalizationService LocalizationService
+@implements IDisposable
+
+@if (_showNav)
+{
+    <MudAppBar Elevation="8" Color="Color.Surface" Fixed="true" Bottom="true" Style="padding-bottom: env(safe-area-inset-bottom); height: calc(56px + env(safe-area-inset-bottom));">
+        <MudStack Row="true" Justify="@Justify.SpaceAround" Align="@Align.Center" Class="flex-grow-1">
+            <MudNavMenu Class="bottom-nav-menu">
+                <MudNavLink Icon="@Icons.Material.Filled.ListAlt" Title="@LocalizationService.GetString("Matches")"
+                            Href="/" Active="@(_currentRoute == "/")" Class="bottom-nav-item">
+                    <MudText Typo="Typo.caption">@LocalizationService.GetString("Matches")</MudText>
+                </MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.Build" Title="@LocalizationService.GetString("Tools")"
+                            Href="/tools" Active="@(_currentRoute == "/tools")" Class="bottom-nav-item">
+                    <MudText Typo="Typo.caption">@LocalizationService.GetString("Tools")</MudText>
+                </MudNavLink>
+            </MudNavMenu>
+        </MudStack>
+    </MudAppBar>
+}
+
+<style>
+    .bottom-nav-menu {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        border: none !important;
+        background: transparent !important;
+    }
+    .bottom-nav-menu .mud-nav-link {
+        flex: 1;
+        flex-direction: column;
+        gap: 2px;
+        padding: 4px 0;
+        min-height: 48px;
+        justify-content: center;
+    }
+    .bottom-nav-menu .mud-nav-link .mud-icon-root {
+        font-size: 24px;
+    }
+    .bottom-nav-menu .mud-nav-link .mud-typography {
+        font-size: 0.7rem;
+        line-height: 1;
+    }
+</style>
+
+@code {
+    private string _currentRoute = "/";
+    private bool _showNav = true;
+
+    protected override void OnInitialized()
+    {
+        UpdateRoute();
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        InvokeAsync(() =>
+        {
+            UpdateRoute();
+            StateHasChanged();
+        });
+    }
+
+    private void UpdateRoute()
+    {
+        var path = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        if (string.IsNullOrEmpty(path) || path == "/")
+        {
+            _currentRoute = "/";
+            _showNav = true;
+        }
+        else if (path.StartsWith("tools"))
+        {
+            _currentRoute = "/tools";
+            _showNav = true;
+        }
+        else if (path.StartsWith("permission"))
+        {
+            _currentRoute = path;
+            _showNav = false;
+        }
+        else
+        {
+            _currentRoute = path;
+            _showNav = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

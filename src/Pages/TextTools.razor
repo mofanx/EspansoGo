@@ -2,12 +2,18 @@
 @inject EspansoGo.Services.IDialogService dialogService
 @inject ISnackbar Snackbar
 
-<MudStack Row="true" Justify="Justify.FlexEnd" Class="mb-2">
-    <MudIconButton Icon="@Icons.Material.Filled.SwapVert" OnClick="SwapText" Size="Size.Small" Title="@localizationService.GetString("Swap")" />
-    <MudIconButton Icon="@Icons.Material.Filled.Clear" OnClick="ClearText" Size="Size.Small" Title="@localizationService.GetString("Clear")" />
-</MudStack>
-<MudTextField T="string" HelperText="@localizationService.GetString("Length")" Counter="textList[0].Length" Label="@localizationService.GetString("Text1")" Variant="Variant.Outlined" @bind-Value="@textList[0]" Lines="3" Class="mb-3" />
+<MudText Typo="Typo.h5" Class="mb-3">@localizationService.GetString("ToolsTitle")</MudText>
+
+<MudTextField T="string" HelperText="@localizationService.GetString("Length")" Counter="textList[0].Length" Label="@localizationService.GetString("Text1")" Variant="Variant.Outlined" @bind-Value="@textList[0]" Lines="3" Class="mb-2" />
 <MudTextField T="string" HelperText="@localizationService.GetString("Length")" Counter="textList[1].Length" Label="@localizationService.GetString("Text2")" Variant="Variant.Outlined" @bind-Value="@textList[1]" Lines="3" Class="mb-3" />
+
+<MudStack Row="true" Justify="Justify.SpaceBetween" Align="Align.Center" Class="mb-3">
+    <MudNumericField Label="@localizationService.GetString("ProcessOnTextNumber")" Min="1" Max="2" @bind-Value="@index" Dense="true" Variant="Variant.Outlined" />
+    <MudStack Row="true" Spacing="1">
+        <MudIconButton Icon="@Icons.Material.Filled.SwapVert" OnClick="SwapText" Size="Size.Small" Title="@localizationService.GetString("Swap")" />
+        <MudIconButton Icon="@Icons.Material.Filled.Clear" OnClick="ClearText" Size="Size.Small" Title="@localizationService.GetString("Clear")" />
+    </MudStack>
+</MudStack>
 
 <MudExpansionPanels Elevation="0" Outlined="true" Class="mb-3" MultiSelection="false">
     <MudExpansionPanel Text="@localizationService.GetString("Basic")" MaxHeight="1000" Expanded="@(_activeMode == 0)" ExpandedChanged="@(EventCallback.Factory.Create<bool>(this, OnBasicExpandedChanged))">
@@ -49,51 +55,59 @@
     </MudExpansionPanel>
 </MudExpansionPanels>
 
-<MudNumericField Label="@localizationService.GetString("ProcessOnTextNumber")" Min="1" Max="2" @bind-Value="@index" Dense="true" Variant="Variant.Outlined" Class="mb-3" />
+<MudStack Spacing="2" Class="mb-3">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@processing" OnClick="Process" StartIcon="@Icons.Material.Filled.PlayArrow">
+        @if (processing)
+        {
+            <MudProgressCircular Class="ms-n1 mr-2" Size="Size.Small" Indeterminate="true" />
+            <MudText Class="ms-2">@localizationService.GetString("Processing")</MudText>
+        }
+        else
+        {
+            <MudText>@localizationService.GetString("Process")</MudText>
+        }
+    </MudButton>
+    <MudStack Row="true" Spacing="2">
+        <MudButton Variant="Variant.Outlined" Color="Color.Default" Class="flex-grow-1" OnClick="async () => await CopyTextAsync(1)" StartIcon="@Icons.Material.Filled.ContentCopy">@localizationService.GetString("CopyText1")</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Default" Class="flex-grow-1" OnClick="async () => await CopyTextAsync(2)" StartIcon="@Icons.Material.Filled.ContentCopy">@localizationService.GetString("CopyText2")</MudButton>
+    </MudStack>
+</MudStack>
 
-<div class="d-flex justify-center mb-3">
-    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Primary">
-        <MudButton Disabled="@processing" OnClick="Process" StartIcon="@Icons.Material.Filled.PlayArrow">
-            @if (processing)
-            {
-                <MudProgressCircular Class="ms-n1 mr-2" Size="Size.Small" Indeterminate="true" />
-                <MudText Class="ms-2">@localizationService.GetString("Processing")</MudText>
-            }
-            else
-            {
-                <MudText>@localizationService.GetString("Process")</MudText>
-            }
-        </MudButton>
-        <MudButton OnClick="async () => await CopyTextAsync(1)" StartIcon="@Icons.Material.Filled.ContentCopy">@localizationService.GetString("CopyText1")</MudButton>
-        <MudButton OnClick="async () => await CopyTextAsync(2)" StartIcon="@Icons.Material.Filled.ContentCopy">@localizationService.GetString("CopyText2")</MudButton>
-    </MudButtonGroup>
-</div>
-
-<MudDivider Class="mb-3" />
-<MudCard Elevation="1">
-    <MudCardContent>
-        <MudText Typo="Typo.h6" Class="mb-2">@localizationService.GetString("Results")</MudText>
-        <MudText Typo="Typo.body2" Color="Color.Default" Class="mb-2" Style="font-family: monospace;">@localizationService.GetString("ProcessCount") @processCount</MudText>
-        <MudStack Spacing="1">
-            <MudStack Row="true" Align="Align.Center" Spacing="2">
-                <MudIcon Icon="@(compareResult ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)" Color="@(compareResult ? Color.Success : Color.Error)" Size="Size.Small" />
-                <MudText Typo="Typo.body2">@localizationService.GetString("IsTextEqual")</MudText>
+@if (_hasProcessed && _activeMode == 0)
+{
+    <MudDivider Class="mb-3" />
+    <MudCard Elevation="1">
+        <MudCardContent>
+            <MudText Typo="Typo.h6" Class="mb-2">@localizationService.GetString("Results")</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Default" Class="mb-2" Style="font-family: monospace;">@localizationService.GetString("ProcessCount") @processCount</MudText>
+            <MudStack Spacing="1">
+                @if (compare)
+                {
+                    <MudStack Row="true" Align="Align.Center" Spacing="2">
+                        <MudIcon Icon="@(compareResult ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)" Color="@(compareResult ? Color.Success : Color.Error)" Size="Size.Small" />
+                        <MudText Typo="Typo.body2">@localizationService.GetString("IsTextEqual")</MudText>
+                    </MudStack>
+                }
+                @if (contains)
+                {
+                    <MudStack Row="true" Align="Align.Center" Spacing="2">
+                        <MudIcon Icon="@(containsResult ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)" Color="@(containsResult ? Color.Success : Color.Error)" Size="Size.Small" />
+                        <MudText Typo="Typo.body2">@localizationService.GetString("ContainsTheWordSpecified")</MudText>
+                    </MudStack>
+                }
+                @if (lengthCompare)
+                {
+                    <MudStack Row="true" Align="Align.Center" Spacing="2">
+                        <MudIcon Icon="@(lengthCompareResult ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)" Color="@(lengthCompareResult ? Color.Success : Color.Error)" Size="Size.Small" />
+                        <MudText Typo="Typo.body2">@localizationService.GetString("IsLengthEqual")</MudText>
+                    </MudStack>
+                }
             </MudStack>
-            <MudStack Row="true" Align="Align.Center" Spacing="2">
-                <MudIcon Icon="@(containsResult ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)" Color="@(containsResult ? Color.Success : Color.Error)" Size="Size.Small" />
-                <MudText Typo="Typo.body2">@localizationService.GetString("ContainsTheWordSpecified")</MudText>
-            </MudStack>
-            <MudStack Row="true" Align="Align.Center" Spacing="2">
-                <MudIcon Icon="@(lengthCompareResult ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)" Color="@(lengthCompareResult ? Color.Success : Color.Error)" Size="Size.Small" />
-                <MudText Typo="Typo.body2">@localizationService.GetString("IsLengthEqual")</MudText>
-            </MudStack>
-        </MudStack>
-    </MudCardContent>
-</MudCard>
+        </MudCardContent>
+    </MudCard>
+}
 
 @code {
-    [Parameter] public bool CanTextExpand { get; set; }
-
     private List<string> textList = new() { "", "" };
     private bool compare = true;
     private bool ignoreCase = false;
@@ -112,6 +126,7 @@
     private bool toLower = false;
     private ulong processCount = 0;
     private int _activeMode = 0;
+    private bool _hasProcessed = false;
 
     private void OnBasicExpandedChanged(bool expanded)
     {
@@ -137,6 +152,7 @@
     private async Task Process()
     {
         processing = true;
+        _hasProcessed = true;
         processCount++;
         try
         {

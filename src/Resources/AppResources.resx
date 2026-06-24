@@ -991,4 +991,25 @@
   <data name="RemoteFileNotFound" xml:space="preserve">
     <value>Remote file not found</value>
   </data>
+  <data name="PermissionCheck" xml:space="preserve">
+    <value>Permission Check</value>
+  </data>
+  <data name="PermissionRequired" xml:space="preserve">
+    <value>Accessibility Permission Required</value>
+  </data>
+  <data name="AccessibilityEnabled" xml:space="preserve">
+    <value>Accessibility service is enabled. You're all set!</value>
+  </data>
+  <data name="SkipForNow" xml:space="preserve">
+    <value>Skip for now</value>
+  </data>
+  <data name="GoHome" xml:space="preserve">
+    <value>Go to Home</value>
+  </data>
+  <data name="RecheckPermission" xml:space="preserve">
+    <value>I've enabled it, recheck</value>
+  </data>
+  <data name="ToolsTitle" xml:space="preserve">
+    <value>Text Tools</value>
+  </data>
 </root>
