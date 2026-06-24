@@ -36,6 +36,19 @@
         gap: 2px;
         padding: 4px 0;
         min-height: 48px;
+        color: var(--mud-palette-text-secondary) !important;
+        opacity: 0.7;
+        transition: opacity 0.2s ease, color 0.2s ease;
+    }
+    .bottom-nav-menu .mud-nav-link:hover {
+        opacity: 0.9;
+    }
+    .bottom-nav-menu .mud-nav-link.mud-nav-link-active {
+        color: var(--mud-palette-primary) !important;
+        opacity: 1;
+    }
+    .bottom-nav-menu .mud-nav-link.mud-nav-link-active .mud-icon-root {
+        color: var(--mud-palette-primary);
     }
     .bottom-nav-menu .mud-nav-link .mud-icon-root {
         font-size: 24px;
@@ -87,6 +100,16 @@
         {
             _currentRoute = path;
             _showNav = false;
+        }
+        else if (path.StartsWith("settings"))
+        {
+            _currentRoute = "/settings";
+            _showNav = true;
+        }
+        else if (path.StartsWith("globalvars"))
+        {
+            _currentRoute = "/globalvars";
+            _showNav = true;
         }
         else
         {
