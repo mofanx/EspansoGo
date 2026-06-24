@@ -123,6 +123,14 @@ h1:focus {
     background: #6366f1;
 }
 
+.mud-appbar .mud-popover {
+    z-index: 1200 !important;
+}
+
+.mud-popover-cascading {
+    z-index: 1200 !important;
+}
+
 @media (prefers-color-scheme: dark) {
     .step-dot {
         background: #334155;

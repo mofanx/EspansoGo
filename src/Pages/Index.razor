@@ -31,6 +31,18 @@
 }
 else
 {
+    @if (!canTextExpand)
+    {
+        <MudAlert Severity="Severity.Warning" Class="mb-3">
+            <MudStack Row="true" Align="Align.Center" Spacing="2" Justify="@Justify.SpaceBetween" Style="width: 100%;">
+                <MudText>@localizationService.GetString("AccessibilityNotEnabledHint")</MudText>
+                <MudButton Color="Color.Warning" Variant="Variant.Filled" Size="Size.Small" OnClick="GoToPermission">
+                    @localizationService.GetString("PermissionCheck")
+                </MudButton>
+            </MudStack>
+        </MudAlert>
+    }
+
     <SyncStatus />
 
     <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="mb-3">
@@ -117,14 +129,14 @@ else
 
     @if (dict is not null && dict.Count > 0)
     {
-        <MudStack Row="true" Spacing="2" Align="Align.End">
+        <MudStack Row="true" Spacing="2" Align="Align.Center">
             <MudTextField @bind-Value="_searchQuery"
                           Label="@localizationService.GetString("SearchMatches")"
                           Variant="Variant.Outlined" Dense="true"
                           Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Search"
                           Class="flex-grow-1" Immediate="true" DebounceInterval="300" />
-            <MudSelect @bind-Value="_sortMode" T="int" Dense="true" Variant="Variant.Outlined" Class="mt-4" Style="min-width: 140px;">
+            <MudSelect @bind-Value="_sortMode" T="int" Dense="true" Variant="Variant.Outlined" Style="min-width: 140px;">
                 <MudSelectItem T="int" Value="0">@localizationService.GetString("SortByTrigger")</MudSelectItem>
                 <MudSelectItem T="int" Value="1">@localizationService.GetString("SortByRecent")</MudSelectItem>
             </MudSelect>
@@ -184,6 +196,12 @@ else
     private MudTextField<string> _triggerRef;
     private Var _editingVar = null;
     private bool _isDirty = false;
+
+    private void GoToPermission()
+    {
+        Preferences.Set("permission_skipped", false);
+        NavigationManager.NavigateTo("/permission");
+    }
 
     private async Task ToggleEditor()
     {

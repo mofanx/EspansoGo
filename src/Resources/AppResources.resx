@@ -1012,4 +1012,7 @@
   <data name="ToolsTitle" xml:space="preserve">
     <value>Text Tools</value>
   </data>
+  <data name="AccessibilityNotEnabledHint" xml:space="preserve">
+    <value>Accessibility service is not enabled. Triggers will not work until you enable it.</value>
+  </data>
 </root>

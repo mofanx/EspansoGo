@@ -1012,4 +1012,7 @@
   <data name="ToolsTitle" xml:space="preserve">
     <value>文本工具</value>
   </data>
+  <data name="AccessibilityNotEnabledHint" xml:space="preserve">
+    <value>无障碍服务未启用，触发词将无法生效，请先开启权限。</value>
+  </data>
 </root>
