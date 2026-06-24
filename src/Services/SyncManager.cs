@@ -193,7 +193,7 @@ namespace Expandroid.Services
 
         #region Push
 
-        public async Task<SyncResult> PushAsync(Dictionary<string, Match> dict, List<Var> globalVars = null, CancellationToken ct = default)
+        public async Task<SyncResult> PushAsync(Dictionary<string, Match> dict, List<Var>? globalVars = null, CancellationToken ct = default)
         {
             var result = new SyncResult();
             if (_config.Method == SyncMethod.None || string.IsNullOrEmpty(_config.SyncUri))
@@ -364,7 +364,7 @@ namespace Expandroid.Services
 
         #region Sync (Pull + Merge + Push)
 
-        public async Task<SyncResult> SyncAsync(Dictionary<string, Match> dict, List<Var> globalVars = null, CancellationToken ct = default)
+        public async Task<SyncResult> SyncAsync(Dictionary<string, Match> dict, List<Var>? globalVars = null, CancellationToken ct = default)
         {
             _suppressSyncCompleted = true;
             SyncResult finalResult;

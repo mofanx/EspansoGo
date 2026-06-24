@@ -26,7 +26,7 @@ namespace Expandroid.Services
         private readonly HttpClient _httpClient;
         private readonly string _baseUri;
 
-        public WebDavClient(string baseUri, string username = null, string password = null)
+        public WebDavClient(string baseUri, string? username = null, string? password = null)
         {
             _baseUri = baseUri.TrimEnd('/') + '/';
 

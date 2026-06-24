@@ -2,7 +2,7 @@
 
 public partial class App : Application
 {
-    private Window window = null;
+    private Window? window = null;
     public App()
     {
         InitializeComponent();
