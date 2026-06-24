@@ -30,7 +30,7 @@
         {
             <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="pa-8">
                 <MudIcon Icon="@Icons.Material.Filled.Inventory2" Size="Size.Large" Color="Color.Default" />
-                <MudText Typo="Typo.body2" Color="Color.Default" Align="Align.Center">@localizationService.GetString("NoPackagesFound")</MudText>
+                <MudText Typo="Typo.body2" Align="Align.Center" Style="opacity: 0.7;">@localizationService.GetString("NoPackagesFound")</MudText>
             </MudStack>
         }
         else
@@ -42,13 +42,13 @@
                         <MudCard Class="mb-3">
                             <MudCardContent>
                                 <MudText Typo="Typo.h6">@pkg.Title</MudText>
-                                <MudText Typo="Typo.body2" Color="Color.Default" class="mb-2">by @pkg.Author</MudText>
+                                <MudText Typo="Typo.body2" class="mb-2" Style="opacity: 0.8;">by @pkg.Author</MudText>
                                 <MudText Typo="Typo.body2" class="mb-2" Style="min-height: 40px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
                                     @pkg.Description
                                 </MudText>
                                 @if (!string.IsNullOrEmpty(pkg.Tags))
                                 {
-                                    <MudText Typo="Typo.caption" Color="Color.Default">
+                                    <MudText Typo="Typo.caption" Style="opacity: 0.6;">
                                         @pkg.Tags
                                     </MudText>
                                 }
@@ -90,7 +90,7 @@
         {
             <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="pa-8">
                 <MudIcon Icon="@Icons.Material.Filled.DownloadDone" Size="Size.Large" Color="Color.Default" />
-                <MudText Typo="Typo.body2" Color="Color.Default" Align="Align.Center">@localizationService.GetString("NoInstalledPackages")</MudText>
+                <MudText Typo="Typo.body2" Align="Align.Center" Style="opacity: 0.7;">@localizationService.GetString("NoInstalledPackages")</MudText>
             </MudStack>
         }
         else

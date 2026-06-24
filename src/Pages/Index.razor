@@ -161,7 +161,7 @@ else
         {
             <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="pa-4">
                 <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Default" />
-                <MudText Typo="Typo.body2" Color="Color.Default" Align="Align.Center">@localizationService.GetString("NoMatchesFound")</MudText>
+                <MudText Typo="Typo.body2" Align="Align.Center" Style="opacity: 0.7;">@localizationService.GetString("NoMatchesFound")</MudText>
             </MudStack>
         }
     }
@@ -169,7 +169,7 @@ else
     {
         <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="pa-8">
             <MudIcon Icon="@Icons.Material.Filled.Inbox" Size="Size.Large" Color="Color.Default" />
-            <MudText Typo="Typo.body2" Color="Color.Default" Align="Align.Center">@localizationService.GetString("NoMatchesYet")</MudText>
+            <MudText Typo="Typo.body2" Align="Align.Center" Style="opacity: 0.7;">@localizationService.GetString("NoMatchesYet")</MudText>
         </MudStack>
     }
 }

@@ -40,23 +40,23 @@
         <MudList Clickable="true" class="mb-3">
             <MudListItem OnClick="() => SelectMethod(SyncMethod.CloudFolder)">
                 <MudText Typo="Typo.subtitle1">@localizationService.GetString("CloudFolderRecommended")</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Default">@localizationService.GetString("CloudFolderDesc")</MudText>
+                <MudText Typo="Typo.body2" Style="opacity: 0.7;">@localizationService.GetString("CloudFolderDesc")</MudText>
             </MudListItem>
             <MudListItem OnClick="() => SelectMethod(SyncMethod.Syncthing)">
                 <MudText Typo="Typo.subtitle1">@localizationService.GetString("SyncMethodSyncthing")</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Default">@localizationService.GetString("SyncthingDesc")</MudText>
+                <MudText Typo="Typo.body2" Style="opacity: 0.7;">@localizationService.GetString("SyncthingDesc")</MudText>
             </MudListItem>
             <MudListItem OnClick="() => SelectMethod(SyncMethod.WebDAV)">
                 <MudText Typo="Typo.subtitle1">@localizationService.GetString("WebDavAdvanced")</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Default">@localizationService.GetString("WebDavDesc")</MudText>
+                <MudText Typo="Typo.body2" Style="opacity: 0.7;">@localizationService.GetString("WebDavDesc")</MudText>
             </MudListItem>
             <MudListItem OnClick="() => SelectMethod(SyncMethod.Git)">
                 <MudText Typo="Typo.subtitle1">@localizationService.GetString("GitRepository")</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Default">@localizationService.GetString("GitRepoDesc")</MudText>
+                <MudText Typo="Typo.body2" Style="opacity: 0.7;">@localizationService.GetString("GitRepoDesc")</MudText>
             </MudListItem>
             <MudListItem OnClick="() => SelectMethod(SyncMethod.Manual)">
                 <MudText Typo="Typo.subtitle1">@localizationService.GetString("SyncMethodManual")</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Default">@localizationService.GetString("ManualDesc")</MudText>
+                <MudText Typo="Typo.body2" Style="opacity: 0.7;">@localizationService.GetString("ManualDesc")</MudText>
             </MudListItem>
         </MudList>
         <MudButton Variant="Variant.Text" OnClick="() => _step = 1">@localizationService.GetString("Back")</MudButton>

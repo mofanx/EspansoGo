@@ -7,7 +7,7 @@
     <MudStack Justify="@Justify.SpaceBetween" Row="true" Align="Align.Center">
         <MudStack Spacing="0" Class="flex-grow-1 me-2" Style="overflow: hidden; min-width: 0;">
             <MudText Color="Color.Primary" Typo="Typo.h6" Align="Align.Start" Style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@Item.Key</MudText>
-            <MudText Typo="Typo.body2" Color="Color.Default" Align="Align.Start" Style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@Item.Value.Replace</MudText>
+            <MudText Typo="Typo.body2" Align="Align.Start" Style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.8;">@Item.Value.Replace</MudText>
         </MudStack>
         <MudStack Row="true" Spacing="1">
             <MudIconButton OnClick="OnEdit" Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Variant="Variant.Text" Size="Size.Medium" />

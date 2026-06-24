@@ -44,7 +44,7 @@
 
         @if (!string.IsNullOrEmpty(currentVar.Type))
         {
-            <MudText Typo="Typo.caption" Color="Color.Default" Class="mb-2">@localizationService.GetString($"VarTypeHelp_{currentVar.Type}")</MudText>
+            <MudText Typo="Typo.caption" Style="opacity: 0.6;" Class="mb-2">@localizationService.GetString($"VarTypeHelp_{currentVar.Type}")</MudText>
             <MudDivider Class="mb-2" />
             @switch (currentVar.Type)
             {
@@ -64,7 +64,7 @@
                                   Hint="@localizationService.GetString("ChoicesHint")" />
                     break;
                 case "clipboard":
-                    <MudText Typo="Typo.body2" Color="Color.Default" Class="mb-2">@localizationService.GetString("ClipboardNoParams")</MudText>
+                    <MudText Typo="Typo.body2" Style="opacity: 0.7;" Class="mb-2">@localizationService.GetString("ClipboardNoParams")</MudText>
                     break;
                 case "shell":
                     <MudTextField @bind-Value="currentVar.Params.Cmd" T="string" Label="@localizationService.GetString("ShellCommand")" Dense="true" Class="mb-2" />
@@ -101,7 +101,7 @@
                                   Variant="Variant.Outlined" Lines="3" />
                     break;
                 default:
-                    <MudText Typo="Typo.body2" Color="Color.Default">@localizationService.GetString("NoSpecificParams")</MudText>
+                    <MudText Typo="Typo.body2" Style="opacity: 0.7;">@localizationService.GetString("NoSpecificParams")</MudText>
                     break;
             }
         }
