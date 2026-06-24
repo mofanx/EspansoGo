@@ -60,11 +60,11 @@ namespace Expandroid.Services
             _ = TriggerPollAsync();
         }
 
-        private async Task TriggerPollAsync()
+        private Task TriggerPollAsync()
         {
             try
             {
-                if (_syncManager == null || !_syncManager.IsWebDav()) return;
+                if (_syncManager == null || !_syncManager.IsWebDav()) return Task.CompletedTask;
                 var hasChanges = _syncManager.CheckChanges();
                 if (hasChanges)
                 {
@@ -76,6 +76,7 @@ namespace Expandroid.Services
             {
                 System.Diagnostics.Debug.WriteLine($"WebDavPollingService poll failed: {ex.Message}");
             }
+            return Task.CompletedTask;
         }
 
         public void Dispose()

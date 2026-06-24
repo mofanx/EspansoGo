@@ -333,10 +333,10 @@ namespace Expandroid.Services
             return result;
         }
 
-        public async Task<List<string>> ResolveImportsAsync(string baseDir, List<string> imports, CancellationToken ct = default)
+        public Task<List<string>> ResolveImportsAsync(string baseDir, List<string> imports, CancellationToken ct = default)
         {
             var resolved = new List<string>();
-            if (imports == null) return resolved;
+            if (imports == null) return Task.FromResult(resolved);
 
             foreach (var importPath in imports)
             {
@@ -354,7 +354,7 @@ namespace Expandroid.Services
 
                 resolved.Add(Path.GetFullPath(fullPath));
             }
-            return resolved;
+            return Task.FromResult(resolved);
         }
 
         public async Task<Dictionary<string, Match>> ReadWithImportsAsync(string filePath, CancellationToken ct = default)

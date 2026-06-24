@@ -73,11 +73,11 @@ namespace Expandroid.Services
             _ = TriggerPollAsync();
         }
 
-        private async Task TriggerPollAsync()
+        private Task TriggerPollAsync()
         {
             try
             {
-                if (_syncManager == null) return;
+                if (_syncManager == null) return Task.CompletedTask;
                 var hasChanges = _syncManager.CheckChanges();
                 if (hasChanges)
                 {
@@ -89,6 +89,7 @@ namespace Expandroid.Services
             {
                 System.Diagnostics.Debug.WriteLine($"SafObserver poll failed: {ex.Message}");
             }
+            return Task.CompletedTask;
         }
 
         private async Task TriggerSyncAsync()
