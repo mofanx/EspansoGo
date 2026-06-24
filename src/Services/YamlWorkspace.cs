@@ -203,7 +203,7 @@ namespace Expandroid.Services
             return _serializer.Serialize(dict);
         }
 
-        public async Task WriteToFolderAsync(string folderPath, Dictionary<string, Match> dict, List<Var>? globalVars = null, CancellationToken ct = default)
+        public async Task WriteToFolderAsync(string folderPath, Dictionary<string, Match> dict, List<Var> globalVars = null, CancellationToken ct = default)
         {
             if (IsSafPath(folderPath))
             {

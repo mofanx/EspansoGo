@@ -1,3 +1,4 @@
+#nullable enable
 namespace Expandroid.Services;
 
 public enum AppTheme

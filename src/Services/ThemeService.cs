@@ -1,3 +1,4 @@
+#nullable enable
 using Microsoft.Maui.Storage;
 
 namespace Expandroid.Services;

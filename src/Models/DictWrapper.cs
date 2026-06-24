@@ -7,7 +7,7 @@ namespace Expandroid.Models
     public class DictWrapper
     {
         [JsonPropertyName("globalVars")]
-        public List<Var>? Global_vars { get; set; }
+        public List<Var> Global_vars { get; set; }
         [JsonPropertyName("matches")]
         public List<Match> Matches { get; set; }
         [YamlMember(Alias = "imports")]

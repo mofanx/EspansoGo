@@ -2,14 +2,14 @@
 
 public partial class App : Application
 {
-    private Window? window = null;
+    private Window window = null;
     public App()
     {
         InitializeComponent();
 
         MainPage = new MainPage();
     }
-    protected override Window CreateWindow(IActivationState? activationState)
+    protected override Window CreateWindow(IActivationState activationState)
     {
         if (window is null)
         {
