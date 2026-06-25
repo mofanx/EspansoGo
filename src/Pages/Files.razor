@@ -15,8 +15,7 @@
 @if (string.IsNullOrEmpty(FileName))
 {
     <MudStack Spacing="3">
-        <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center">
-            <MudText Typo="Typo.h5" Class="mt-2 mb-1">@LocalizationService.GetString("Files")</MudText>
+        <MudStack Row="true" Justify="@Justify.End" Align="Align.Center">
             <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
                 @LocalizationService.GetString("NewFile")
             </MudButton>
@@ -32,7 +31,7 @@
         else if (_fileGroups.Count == 0)
         {
             <MudPaper Elevation="1" Class="pa-8 text-center">
-                <MudText Typo="Typo.body1" Color="Color.Default">@LocalizationService.GetString("EmptyFile")</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Default">@LocalizationService.GetString("EmptyFile")</MudText>
             </MudPaper>
         }
         else
