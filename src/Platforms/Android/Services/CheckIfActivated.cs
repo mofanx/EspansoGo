@@ -65,7 +65,7 @@ namespace EspansoGo.Services
             {
                 var intent = new Intent(action);
                 if (!string.IsNullOrEmpty(componentNameExtra) && Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
-                    intent.PutExtra(Intent.ExtraComponentName, componentNameExtra);
+                    intent.PutExtra("android.intent.extra.COMPONENT_NAME", componentNameExtra);
                 intent.SetFlags(ActivityFlags.NewTask);
                 context.StartActivity(intent);
                 return true;
