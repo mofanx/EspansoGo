@@ -1123,4 +1123,13 @@
   <data name="SelectTemplate" xml:space="preserve">
     <value>选择模板</value>
   </data>
+  <data name="PreviewPush" xml:space="preserve">
+    <value>预览推送</value>
+  </data>
+  <data name="PushPreview" xml:space="preserve">
+    <value>将推送的文件（⚠️ = 将覆盖, ✨ = 新建）：</value>
+  </data>
+  <data name="ConfirmPush" xml:space="preserve">
+    <value>确认推送</value>
+  </data>
 </root>

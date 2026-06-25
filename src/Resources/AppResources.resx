@@ -1123,4 +1123,13 @@
   <data name="SelectTemplate" xml:space="preserve">
     <value>Select a template</value>
   </data>
+  <data name="PreviewPush" xml:space="preserve">
+    <value>Preview Push</value>
+  </data>
+  <data name="PushPreview" xml:space="preserve">
+    <value>Files to be pushed (⚠️ = will overwrite, ✨ = new):</value>
+  </data>
+  <data name="ConfirmPush" xml:space="preserve">
+    <value>Confirm &amp; Push</value>
+  </data>
 </root>

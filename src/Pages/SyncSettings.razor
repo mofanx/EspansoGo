@@ -29,10 +29,18 @@
                         @GetMethodName() · @(SyncManager.LastSyncTime?.ToLocalTime().ToString("g") ?? localizationService.GetString("Never"))
                     </MudText>
                 </MudStack>
-                <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="SyncNow" Disabled="@_syncing" Size="Size.Small">
-                    @if (_syncing) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="ms-2" /> }
-                    else { @localizationService.GetString("SyncNow") }
-                </MudButton>
+                <MudStack Row="true" Align="Align.Center" Spacing="1">
+                    <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="SyncNow" Disabled="@_syncing" Size="Size.Small">
+                        @if (_syncing) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="ms-2" /> }
+                        else { @localizationService.GetString("SyncNow") }
+                    </MudButton>
+                    @if (_pushPreview.Count == 0)
+                    {
+                        <MudButton Color="Color.Info" Variant="Variant.Text" OnClick="PreviewPush" Disabled="@_syncing" Size="Size.Small">
+                            @localizationService.GetString("PreviewPush")
+                        </MudButton>
+                    }
+                </MudStack>
             </MudStack>
             @if (SyncManager.CurrentStatus == Services.SyncStatus.Conflict)
             {
@@ -58,6 +66,24 @@
                     {
                         <text>@_lastResult.ErrorMessage</text>
                     }
+                </MudAlert>
+            }
+            @if (_pushPreview.Count > 0)
+            {
+                <MudAlert Severity="Severity.Info" Class="mt-2">
+                    <MudText Typo="Typo.subtitle2">@localizationService.GetString("PushPreview")</MudText>
+                    @foreach (var f in _pushPreview)
+                    {
+                        <div>@f</div>
+                    }
+                    <MudStack Row="true" Spacing="2" Class="mt-2">
+                        <MudButton Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled" OnClick="SyncNow" Disabled="@_syncing">
+                            @localizationService.GetString("ConfirmPush")
+                        </MudButton>
+                        <MudButton Size="Size.Small" Color="Color.Default" Variant="Variant.Text" OnClick="ClearPushPreview">
+                            @localizationService.GetString("Cancel")
+                        </MudButton>
+                    </MudStack>
                 </MudAlert>
             }
         </MudStack>
@@ -153,6 +179,7 @@
     private bool _testing = false;
     private bool _syncing = false;
     private bool _termuxAvailable = false;
+    private List<string> _pushPreview = new();
 
     protected override void OnInitialized()
     {
@@ -230,6 +257,65 @@
         }
     }
 
+    private void ClearPushPreview()
+    {
+        _pushPreview.Clear();
+        StateHasChanged();
+    }
+
+    private async Task PreviewPush()
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(AppSettings.DictPath) || !File.Exists(AppSettings.DictPath))
+            {
+                Snackbar.Add(localizationService.GetString("NoLocalDataToSync"), Severity.Warning);
+                return;
+            }
+
+            var dictJson = await File.ReadAllTextAsync(AppSettings.DictPath);
+            var dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, Match>>(dictJson);
+            if (dict == null || dict.Count == 0)
+            {
+                Snackbar.Add(localizationService.GetString("NoLocalDataToSync"), Severity.Warning);
+                return;
+            }
+
+            var grouped = YamlWorkspace.GroupMatchesBySourceFile(dict);
+            var syncFolder = SyncManager.GetSyncFolderPath();
+            var remoteFiles = new HashSet<string>();
+            if (!string.IsNullOrEmpty(syncFolder))
+            {
+                var remoteList = YamlWorkspace.GetFileList(syncFolder);
+                foreach (var rf in remoteList)
+                    remoteFiles.Add(Path.GetFileName(rf.Path));
+            }
+
+            _pushPreview.Clear();
+            foreach (var (fileName, matches) in grouped)
+            {
+                var exists = remoteFiles.Contains(fileName);
+                _pushPreview.Add($"{fileName} ({matches.Count}){(exists ? " ⚠️" : " ✨")}");
+            }
+            List<Var> gv = null;
+            if (File.Exists(AppSettings.GlobalVarsPath))
+            {
+                var gvJson = await File.ReadAllTextAsync(AppSettings.GlobalVarsPath);
+                gv = System.Text.Json.JsonSerializer.Deserialize<List<Var>>(gvJson);
+            }
+            if (gv != null && gv.Count > 0)
+            {
+                var gvExists = remoteFiles.Contains("global_vars.yml");
+                _pushPreview.Add($"global_vars.yml ({gv.Count}){(gvExists ? " ⚠️" : " ✨")}");
+            }
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add(string.Format(localizationService.GetString("ErrorWithDetail"), e.Message), Severity.Error);
+        }
+    }
+
     private async Task SyncNow()
     {
         if (!await SyncManager.SyncLock.WaitAsync(0))
@@ -254,6 +340,7 @@
             }
 
             _lastResult = await SyncManager.SyncAsync(dict, globalVars);
+            _pushPreview.Clear();
 
             if (_lastResult.Success && _lastResult.HasRemoteChanges)
             {

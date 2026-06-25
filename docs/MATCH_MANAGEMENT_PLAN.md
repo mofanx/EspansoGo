@@ -14,7 +14,7 @@
 | 1.2 导航入口（Settings + TopBar + BottomNav） | ✅ | 设置→功能→全局变量，路由 `/globalvars` |
 | 1.3 本地化字符串（en + zh） | ✅ | 9 个新 key（`Update` 复用已有 key） |
 | 1.4 保存/同步集成 | ✅ | 保存到 `global.json`，通知 AC 服务，触发同步推送 |
-| 1.5 同步推送前预览文件列表，警告覆盖 | ⏳ 待做 | 中等优先级，`SyncSettings.razor` 已有 `GetFileList` 展示远程文件，需补充覆盖警告 UI |
+| 1.5 同步推送前预览文件列表，警告覆盖 | ✅ | SyncSettings 摘要卡片新增 PreviewPush 按钮，列出文件并标记覆盖/新建状态 |
 
 ### 阶段 2：文件管理（需重构数据模型） — ✅ 已完成
 
