@@ -99,7 +99,7 @@
                 @if (!_shizukuAvailable && !_shizukuHintDismissed)
                 {
                     <MudAlert Severity="Severity.Info" Class="mt-2" ShowDismissIcon="true" Dismissed="@(_shizukuHintDismissed)"
-                              DismissedChanged="@(v => { _shizukuHintDismissed = v; Microsoft.Maui.Storage.Preferences.Set("shizuku_hint_dismissed", v); StateHasChanged(); })">
+                              DismissedChanged="@(EventCallback.Factory.Create<bool>(this, v => { _shizukuHintDismissed = v; Microsoft.Maui.Storage.Preferences.Set("shizuku_hint_dismissed", v); StateHasChanged(); }))">
                         <MudText Typo="Typo.body2">@LocalizationService.GetString("ShizukuHint")</MudText>
                         <MudButton Variant="Variant.Text" Color="Color.Info" Size="Size.Small" OnClick="OpenShizukuWebsite">
                             @LocalizationService.GetString("LearnMore")

@@ -15,7 +15,7 @@
 @if (string.IsNullOrEmpty(FileName))
 {
     <MudStack Spacing="3">
-        <MudStack Row="true" Justify="@Justify.End" Align="Align.Center">
+        <MudStack Row="true" Justify="@Justify.FlexEnd" Align="Align.Center">
             <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
                 @LocalizationService.GetString("NewFile")
             </MudButton>
