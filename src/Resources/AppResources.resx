@@ -1096,4 +1096,7 @@
   <data name="MatchesCount" xml:space="preserve">
     <value>{0} matches</value>
   </data>
+  <data name="LocalContent" xml:space="preserve">
+    <value>Local Content Preview</value>
+  </data>
 </root>

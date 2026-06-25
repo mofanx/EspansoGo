@@ -16,7 +16,7 @@
 | 1.4 保存/同步集成 | ✅ | 保存到 `global.json`，通知 AC 服务，触发同步推送 |
 | 1.5 同步推送前预览文件列表，警告覆盖 | ⏳ 待做 | 中等优先级，`SyncSettings.razor` 已有 `GetFileList` 展示远程文件，需补充覆盖警告 UI |
 
-### 阶段 2：文件管理（需重构数据模型） — ⏳ 待做
+### 阶段 2：文件管理（需重构数据模型） — ✅ 已完成
 
 阶段 2 分为 4 个子阶段，按依赖关系排序：
 
@@ -24,40 +24,40 @@
 
 | 任务 | 状态 | 说明 |
 |------|------|------|
-| 2A.1 `Match` 类增加 `SourceFile` 字段 | ⏳ | `src/Models/DictWrapper.cs`，同步更新拷贝构造函数 |
-| 2A.2 `Triggers` 展开时保留 `SourceFile` | ⏳ | `YamlWorkspace.MergeGroupIntoDict` 中 clone 需继承 SourceFile |
-| 2A.3 `DictWrapper` → `MatchGroup` 适配 | ⏳ | 导入路径（`ImportService`）将 `DictWrapper.Matches` 转换时设置 `SourceFile` |
-| 2A.4 `AppSettings` 增加 `DataFormatVersion` | ⏳ | 用于迁移判断，当前版本 = 1（旧格式），目标 = 2 |
+| 2A.1 `Match` 类增加 `SourceFile` 字段 | ✅ | `src/Models/DictWrapper.cs`，同步更新拷贝构造函数 |
+| 2A.2 `Triggers` 展开时保留 `SourceFile` | ✅ | `YamlWorkspace.MergeGroupIntoDict` 中 clone 需继承 SourceFile |
+| 2A.3 `DictWrapper` → `MatchGroup` 适配 | ✅ | 导入路径（`ImportService`）将 `DictWrapper.Matches` 转换时设置 `SourceFile` |
+| 2A.4 `AppSettings` 增加 `DataFormatVersion` | ✅ | 用于迁移判断，当前版本 = 1（旧格式），目标 = 2 |
 
 #### 2B. 本地存储迁移（P1 数据安全）
 
 | 任务 | 状态 | 说明 |
 |------|------|------|
-| 2B.1 定义新本地存储格式 | ⏳ | 从 `keywords.json`（扁平 dict）改为 `keywords/` 目录，按 `SourceFile` 分组 |
-| 2B.2 迁移逻辑：v1 → v2 | ⏳ | 读取旧 `keywords.json`，所有 match 的 `SourceFile` 设为 `null`（标记为"未分类"） |
-| 2B.3 迁移时备份旧文件 | ⏳ | 复制 `keywords.json` → `keywords.json.bak`，迁移成功后保留备份不删除 |
-| 2B.4 迁移失败回滚 | ⏳ | 若新格式写入失败，恢复 `keywords.json.bak` 并将 `DataFormatVersion` 回退为 1 |
-| 2B.5 启动时自动迁移 | ⏳ | `MauiProgram.cs` 或 `Index.razor.OnInitializedAsync` 中检查版本并执行 |
+| 2B.1 定义新本地存储格式 | ✅ | 从 `keywords.json`（扁平 dict）改为 `keywords/` 目录，按 `SourceFile` 分组 |
+| 2B.2 迁移逻辑：v1 → v2 | ✅ | 读取旧 `keywords.json`，所有 match 的 `SourceFile` 设为 `null`（标记为"未分类"） |
+| 2B.3 迁移时备份旧文件 | ✅ | 复制 `keywords.json` → `keywords.json.bak`，迁移成功后保留备份不删除 |
+| 2B.4 迁移失败回滚 | ✅ | 若新格式写入失败，恢复 `keywords.json.bak` 并将 `DataFormatVersion` 回退为 1 |
+| 2B.5 启动时自动迁移 | ✅ | `MauiProgram.cs` 或 `Index.razor.OnInitializedAsync` 中检查版本并执行 |
 
 #### 2C. 同步推送统一与增量更新（P0 核心）
 
 | 任务 | 状态 | 说明 |
 |------|------|------|
-| 2C.1 统一三条推送路径的文件结构 | ⏳ | CloudFolder、WebDAV、Git 均输出多文件结构（详见下方设计） |
-| 2C.2 `WriteToFolderAsync` 改为增量更新 | ⏳ | 按 `SourceFile` 分组写入，不再先删后写（详见下方算法） |
-| 2C.3 WebDAV 推送改为多文件 | ⏳ | `PushWebDavAsync` 从单 `espansogo.yml` 改为按 SourceFile 上传多个 YAML |
-| 2C.4 Git 推送改为多文件 | ⏳ | `GitSyncService.PushAsync` 从单文件改为按 SourceFile 写入 `match/` 目录 |
-| 2C.5 SAF 兼容性验证 | ⏳ | 确认 `SafManager` 支持增量写入（不删除已有文件、按需创建新文件） |
+| 2C.1 统一三条推送路径的文件结构 | ✅ | CloudFolder、WebDAV、Git 均输出多文件结构（详见下方设计） |
+| 2C.2 `WriteToFolderAsync` 改为增量更新 | ✅ | 按 `SourceFile` 分组写入，不再先删后写（详见下方算法） |
+| 2C.3 WebDAV 推送改为多文件 | ✅ | `PushWebDavAsync` 从单 `espansogo.yml` 改为按 SourceFile 上传多个 YAML |
+| 2C.4 Git 推送改为多文件 | ✅ | `GitSyncService.PushAsync` 从单文件改为按 SourceFile 写入 `match/` 目录 |
+| 2C.5 SAF 兼容性验证 | ✅ | 确认 `SafManager` 支持增量写入（不删除已有文件、按需创建新文件） |
 
 #### 2D. 文件管理 UI（P2）
 
 | 任务 | 状态 | 说明 |
 |------|------|------|
-| 2D.1 新增文件管理页面 `Pages/Files.razor` | ⏳ | 文件列表、按文件浏览 match（详见下方 UI 设计） |
-| 2D.2 文件操作功能 | ⏳ | 创建/重命名/删除 YAML 文件，match 在文件间移动 |
-| 2D.3 新建 match 时选择目标文件 | ⏳ | `Index.razor` 添加 match 时增加 `SourceFile` 选择器 |
-| 2D.4 本地化字符串 | ⏳ | 文件管理相关 key（en + zh） |
-| 2D.5 路由与导航集成 | ⏳ | `/files` 路由，TopBar 标题，Settings 入口，BottomNav 直达（详见 UI/UX 改进） |
+| 2D.1 新增文件管理页面 `Pages/Files.razor` | ✅ | 文件列表、按文件浏览 match（详见下方 UI 设计） |
+| 2D.2 文件操作功能 | ✅ | 创建/重命名/删除 YAML 文件，match 在文件间移动 |
+| 2D.3 新建 match 时选择目标文件 | ✅ | `Index.razor` 添加 match 时增加 `SourceFile` 选择器 |
+| 2D.4 本地化字符串 | ✅ | 文件管理相关 key（en + zh） |
+| 2D.5 路由与导航集成 | ✅ | `/files` 路由，TopBar 标题，Settings 入口，BottomNav 直达（详见 UI/UX 改进） |
 
 ### 阶段 2D UI 设计：文件管理
 
@@ -424,7 +424,7 @@ Git 改动要点：
 - Fallback 策略保持不变（`base`/`emoji`/`symbols`/`misc`）
 - 用户可在 UI 中手动将"未分类"的 match 归入指定文件
 
-## UI/UX 改进（与阶段 2 同步实施）
+## UI/UX 改进（与阶段 2 同步实施） — ✅ 已完成
 
 以下改进应在阶段 2 实施时一并完成，确保整体导航和同步设置体验一致。
 

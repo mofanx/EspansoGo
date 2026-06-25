@@ -68,6 +68,13 @@ else
                     </MudItem>
                 </MudGrid>
                 <MudCheckBox @bind-Value="currentMatch.Word" Label="@localizationService.GetString("WholeWord")" />
+                <MudSelect T="string" @bind-Value="currentMatch.SourceFile" Label="@localizationService.GetString("File")" Variant="Variant.Outlined" Dense="true">
+                    <MudSelectItem T="string" Value="@(null)">@localizationService.GetString("Uncategorized")</MudSelectItem>
+                    @foreach (var f in _availableFiles)
+                    {
+                        <MudSelectItem T="string" Value="@f">@f</MudSelectItem>
+                    }
+                </MudSelect>
                 <MudStack Row="true" Spacing="2">
                     <MudButton @onclick="AddItemAsync" Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add">
                         @localizationService.GetString("Add")
@@ -195,6 +202,27 @@ else
     private bool _syncing = false;
     private bool _saving = false;
     private MudTextField<string> _triggerRef;
+    private List<string> _availableFiles = new();
+
+    private string GetDefaultSourceFile()
+    {
+        var last = Preferences.Get("last_source_file", null);
+        if (!string.IsNullOrEmpty(last) && _availableFiles.Contains(last))
+            return last;
+        if (_availableFiles.Count > 0)
+            return _availableFiles[0];
+        return "base.yml";
+    }
+
+    private void UpdateAvailableFiles()
+    {
+        _availableFiles = dict?.Values
+            .Select(m => m.SourceFile)
+            .Where(s => !string.IsNullOrEmpty(s))
+            .Distinct()
+            .OrderBy(f => f)
+            .ToList() ?? new();
+    }
     private Var _editingVar = null;
     private bool _isDirty = false;
 
@@ -217,7 +245,7 @@ else
         _showEditor = !_showEditor;
         if (_showEditor)
         {
-            currentMatch = new() { Replace = "", Trigger = "", Vars = new() };
+            currentMatch = new() { Replace = "", Trigger = "", Vars = new(), SourceFile = GetDefaultSourceFile() };
             currentVar = new() { Params = new() };
             editingKey = null;
             _editingVar = null;
@@ -366,6 +394,7 @@ else
         }
         else if (dict is null)
             dict = new();
+        UpdateAvailableFiles();
         if (File.Exists(AppSettings.GlobalVarsPath))
         {
             using var stream = File.OpenRead(AppSettings.GlobalVarsPath);
@@ -564,11 +593,14 @@ else
                     if (!overwrite)
                         return;
                 }
+                if (!string.IsNullOrEmpty(copy.SourceFile))
+                    Preferences.Set("last_source_file", copy.SourceFile);
                 dict[copy.Trigger] = new(copy); // need another copy :(
                 copy.Replace = copy.Replace.Replace("\\n", Environment.NewLine);
                 SendMessage("Add", copy);
+                UpdateAvailableFiles();
                 editingKey = null;
-                currentMatch = new() { Replace = "", Trigger = "", Vars = new() };
+                currentMatch = new() { Replace = "", Trigger = "", Vars = new(), SourceFile = GetDefaultSourceFile() };
                 _isDirty = false;
             }
             else
@@ -588,6 +620,7 @@ else
             if (dict.Remove(item.Trigger, out var _))
             {
                 SendMessage("Remove", item);
+                UpdateAvailableFiles();
                 Snackbar.Add(string.Format(localizationService.GetString("MatchDeleted"), item.Trigger), Severity.Success, config =>
                 {
                     config.Action = localizationService.GetString("Undo");
@@ -741,6 +774,7 @@ else
                 {
                     using var stream = File.OpenRead(AppSettings.DictPath);
                     dict = JsonSerializer.Deserialize<Dictionary<string, Match>>(stream);
+                    UpdateAvailableFiles();
                     foreach (var kv in dict)
                     {
                         SendMessage("Update", kv.Value);
@@ -780,6 +814,7 @@ else
         editingKey = item.Key;
         currentMatch.Trigger = item.Value.Trigger;
         currentMatch.Replace = item.Value.Replace;
+        currentMatch.SourceFile = item.Value.SourceFile;
         if (item.Value.Vars is not null)
         {
             currentMatch.Vars = item.Value.Vars.Select(v => new Var(v)).ToList();

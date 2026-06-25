@@ -40,6 +40,16 @@ else
                 <MudExpansionPanels Elevation="0" Outlined="true" MultiSelection="false" Class="mt-2">
                     <MudExpansionPanel Text="@localizationService.GetString("FileDetails")" Dense="true">
                         <MudText Typo="Typo.body2">@GetConflictInfo(conflict)</MudText>
+                        @{
+                            var preview = GetContentPreview(conflict);
+                            if (preview != null)
+                            {
+                                <MudText Typo="Typo.subtitle2" Class="mt-2 mb-1">📍 @localizationService.GetString("LocalContent")</MudText>
+                                <MudPaper Elevation="0" Outlined="true" Class="pa-2 mb-2" Style="max-height: 200px; overflow: auto;">
+                                    <MudText Typo="Typo.body2" Style="white-space: pre; font-family: monospace; font-size: 0.8rem;">@preview</MudText>
+                                </MudPaper>
+                            }
+                        }
                     </MudExpansionPanel>
                 </MudExpansionPanels>
                 <MudStack Row="true" Spacing="3" class="mt-3">
@@ -125,6 +135,23 @@ else
         catch
         {
             return localizationService.GetString("NoFileInfo");
+        }
+    }
+
+    private string GetContentPreview(string fileName)
+    {
+        try
+        {
+            var syncFolder = SyncManager.GetSyncFolderPath();
+            if (string.IsNullOrEmpty(syncFolder)) return null;
+            var localPath = Path.Combine(syncFolder, fileName);
+            if (!File.Exists(localPath)) return null;
+            var lines = File.ReadAllLines(localPath).Take(20);
+            return string.Join("\n", lines);
+        }
+        catch
+        {
+            return null;
         }
     }
 

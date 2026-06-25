@@ -13,21 +13,23 @@
 @inject EspansoGo.Services.IDialogService dialogService
 @implements IDisposable
 
-<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true">
-    @* Tab 1: Status *@
-    <MudTabPanel Text="@localizationService.GetString("Status")">
-        <MudStack Spacing="3" Class="pa-4">
-            <MudStack Row="true" Align="Align.Center" Spacing="3">
-                <MudChip Color="@(SyncManager.CurrentStatus == Services.SyncStatus.Idle ? Color.Success :
-                                   SyncManager.CurrentStatus == Services.SyncStatus.Syncing ? Color.Info :
-                                   SyncManager.CurrentStatus == Services.SyncStatus.Error ? Color.Error :
-                                   Color.Warning)">
-                    @GetStatusName()
-                </MudChip>
-                <MudText>
-                    @localizationService.GetString("LastSync"): @(SyncManager.LastSyncTime?.ToLocalTime().ToString("g") ?? localizationService.GetString("Never"))
-                </MudText>
-                <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="SyncNow" Disabled="@_syncing">
+<MudStack Spacing="3">
+    @* Summary Card *@
+    <MudPaper Elevation="2" Class="pa-4">
+        <MudStack Spacing="2">
+            <MudStack Row="true" Align="Align.Center" Justify="@Justify.SpaceBetween">
+                <MudStack Row="true" Align="Align.Center" Spacing="2">
+                    <MudChip Color="@(SyncManager.CurrentStatus == Services.SyncStatus.Idle ? Color.Success :
+                                       SyncManager.CurrentStatus == Services.SyncStatus.Syncing ? Color.Info :
+                                       SyncManager.CurrentStatus == Services.SyncStatus.Error ? Color.Error :
+                                       Color.Warning)">
+                        @GetStatusName()
+                    </MudChip>
+                    <MudText Typo="Typo.body2">
+                        @GetMethodName() · @(SyncManager.LastSyncTime?.ToLocalTime().ToString("g") ?? localizationService.GetString("Never"))
+                    </MudText>
+                </MudStack>
+                <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="SyncNow" Disabled="@_syncing" Size="Size.Small">
                     @if (_syncing) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="ms-2" /> }
                     else { @localizationService.GetString("SyncNow") }
                 </MudButton>
@@ -35,7 +37,7 @@
             @if (SyncManager.CurrentStatus == Services.SyncStatus.Conflict)
             {
                 <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="GoToConflicts"
-                           StartIcon="@Icons.Material.Filled.WarningAmber">
+                           StartIcon="@Icons.Material.Filled.WarningAmber" Size="Size.Small">
                     @localizationService.GetString("ResolveConflicts")
                 </MudButton>
             }
@@ -59,9 +61,10 @@
                 </MudAlert>
             }
         </MudStack>
-    </MudTabPanel>
+    </MudPaper>
 
-    @* Tab 2: Configuration *@
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true">
+    @* Tab 1: Configuration *@
     <MudTabPanel Text="@localizationService.GetString("Configuration")">
         <MudStack Spacing="3" Class="pa-4">
             <MudSelect T="SyncMethod" Value="_config.Method" ValueChanged="OnMethodChanged" Label="@localizationService.GetString("SyncMethod")" Variant="Variant.Outlined" class="mb-3">
@@ -99,10 +102,14 @@
                     <br /><strong>Termux: @(_termuxAvailable ? localizationService.GetString("TermuxDetected") : localizationService.GetString("TermuxNotFound"))</strong>
                 </MudAlert>
             }
+
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveConfig">
+                @localizationService.GetString("Save")
+            </MudButton>
         </MudStack>
     </MudTabPanel>
 
-    @* Tab 3: Advanced *@
+    @* Tab 2: Advanced *@
     <MudTabPanel Text="@localizationService.GetString("Advanced")">
         <MudStack Spacing="3" Class="pa-4">
             <MudText Typo="Typo.h6">@localizationService.GetString("ConflictStrategy")</MudText>
@@ -135,10 +142,6 @@
     </MudTabPanel>
 </MudTabs>
 
-<MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap" Class="mt-4">
-    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveConfig">
-        @localizationService.GetString("Save")
-    </MudButton>
     <MudButton Color="Color.Info" Variant="Variant.Text" OnClick="GoToSetupWizard">
         @localizationService.GetString("SetupWizard")
     </MudButton>
@@ -174,6 +177,16 @@
         Services.SyncStatus.Error => localizationService.GetString("SyncStatusError"),
         Services.SyncStatus.Conflict => localizationService.GetString("SyncStatusConflict"),
         _ => SyncManager.CurrentStatus.ToString()
+    };
+
+    private string GetMethodName() => _config.Method switch
+    {
+        SyncMethod.CloudFolder => localizationService.GetString("SyncMethodCloudFolder"),
+        SyncMethod.Syncthing => localizationService.GetString("SyncMethodSyncthing"),
+        SyncMethod.WebDAV => localizationService.GetString("SyncMethodWebDAV"),
+        SyncMethod.Git => localizationService.GetString("SyncMethodGit"),
+        SyncMethod.Manual => localizationService.GetString("SyncMethodManual"),
+        _ => _config.Method.ToString()
     };
 
     private void OnMethodChanged(SyncMethod method)
