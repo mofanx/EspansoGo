@@ -4,7 +4,7 @@
 
 @if (_showNav)
 {
-    <MudAppBar Elevation="8" Color="Color.Surface" Fixed="true" Bottom="true" Style="padding-bottom: env(safe-area-inset-bottom); height: calc(56px + env(safe-area-inset-bottom));">
+    <MudAppBar Elevation="8" Color="Color.Surface" Fixed="true" Bottom="true" Style="padding: 0 0 0 0; padding-bottom: env(safe-area-inset-bottom); height: calc(56px + env(safe-area-inset-bottom));">
         <MudStack Row="true" Justify="@Justify.SpaceAround" Align="@Align.Center" Class="flex-grow-1">
             <MudNavMenu Class="bottom-nav-menu">
                 <MudNavLink Icon="@Icons.Material.Filled.ListAlt" Title="@LocalizationService.GetString("Matches")"
@@ -40,13 +40,17 @@
         flex: 1;
         flex-direction: column !important;
         align-items: center !important;
-        justify-content: center;
+        justify-content: center !important;
         gap: 2px;
-        padding: 4px 0;
+        padding: 6px 0 !important;
         min-height: 48px;
+        height: 100%;
         color: var(--mud-palette-text-secondary) !important;
         opacity: 0.7;
         transition: opacity 0.2s ease, color 0.2s ease;
+        border-radius: 0 !important;
+        overflow: hidden;
+        position: relative;
     }
     .bottom-nav-menu .mud-nav-link:hover {
         opacity: 0.9;
@@ -59,16 +63,23 @@
         color: var(--mud-palette-primary);
     }
     .bottom-nav-menu .mud-nav-link .mud-icon-root {
-        font-size: 24px;
-        display: block;
-        text-align: center;
+        font-size: 22px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
         margin: 0 !important;
+        padding: 0 !important;
     }
     .bottom-nav-menu .mud-nav-link .mud-typography {
-        font-size: 0.7rem;
+        font-size: 0.68rem;
         line-height: 1;
         text-align: center;
         margin: 0;
+        padding: 0;
+    }
+    .bottom-nav-menu .mud-nav-link .mud-ripple {
+        border-radius: 0;
+        inset: 0;
     }
 </style>
 
@@ -110,6 +121,11 @@
             _showNav = true;
         }
         else if (path.StartsWith("permission"))
+        {
+            _currentRoute = path;
+            _showNav = false;
+        }
+        else if (path.StartsWith("match-editor"))
         {
             _currentRoute = path;
             _showNav = false;

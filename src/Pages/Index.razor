@@ -26,7 +26,7 @@
     <MudStack Spacing="3" Class="pa-4">
         @for (int i = 0; i < 5; i++)
         {
-            <MudSkeleton Height="80px" Elevation="1" />
+            <MudSkeleton Height="72px" Elevation="1" />
         }
     </MudStack>
 }
@@ -36,7 +36,7 @@ else
     {
         <MudAlert Severity="Severity.Warning" Class="mb-3">
             <MudStack Row="true" Align="Align.Center" Spacing="2" Justify="@Justify.SpaceBetween" Style="width: 100%;">
-                <MudText>@localizationService.GetString("AccessibilityNotEnabledHint")</MudText>
+                <MudText Typo="Typo.body2">@localizationService.GetString("AccessibilityNotEnabledHint")</MudText>
                 <MudButton Color="Color.Warning" Variant="Variant.Filled" Size="Size.Small" OnClick="GoToPermission">
                     @localizationService.GetString("PermissionCheck")
                 </MudButton>
@@ -46,78 +46,9 @@ else
 
     <SyncStatus />
 
-    <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="mb-3">
-        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ToggleEditor" Class="px-4">
-            <MudText Typo="Typo.h6">
-                @(editingKey is not null ? localizationService.GetString("EditMatch") : localizationService.GetString("AddNewMatch"))
-            </MudText>
-            <MudIcon Icon="@(_showEditor ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)" Class="ms-1" />
-        </MudButton>
-    </MudStack>
-
-    @if (_showEditor)
-    {
-        <MudPaper Class="pa-4 mb-4" Elevation="1">
-            <MudStack Spacing="3">
-                <MudGrid Spacing="2">
-                    <MudItem xs="6">
-                        <MudTextField @ref="_triggerRef" @bind-Value="currentMatch.Trigger" Label="@localizationService.GetString("Trigger")" Variant="Variant.Outlined" Dense="true" KeyDown="OnEditorKeyDown" />
-                    </MudItem>
-                    <MudItem xs="6">
-                        <MudTextField @bind-Value="currentMatch.Replace" Label="@localizationService.GetString("Replacement")" Variant="Variant.Outlined" Dense="true" KeyDown="OnEditorKeyDown" />
-                    </MudItem>
-                </MudGrid>
-                <MudCheckBox @bind-Value="currentMatch.Word" Label="@localizationService.GetString("WholeWord")" />
-                <MudSelect T="string" @bind-Value="currentMatch.SourceFile" Label="@localizationService.GetString("File")" Variant="Variant.Outlined" Dense="true">
-                    <MudSelectItem T="string" Value="@(null)">@localizationService.GetString("Uncategorized")</MudSelectItem>
-                    @foreach (var f in _availableFiles)
-                    {
-                        <MudSelectItem T="string" Value="@f">@f</MudSelectItem>
-                    }
-                </MudSelect>
-                <MudStack Row="true" Spacing="2">
-                    <MudButton @onclick="AddItemAsync" Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add">
-                        @localizationService.GetString("Add")
-                    </MudButton>
-                    @if (editingKey is not null)
-                    {
-                        <MudButton @onclick="CancelEdit" Color="Color.Default" Variant="Variant.Text">
-                            @localizationService.GetString("CancelEdit")
-                        </MudButton>
-                    }
-                </MudStack>
-
-                <MudPaper Class="pa-4" Elevation="0" Outlined="true">
-                    <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="mb-2">
-                        <MudText Typo="Typo.subtitle2">@localizationService.GetString("Variables")</MudText>
-                        <MudChip Color="Color.Secondary" Size="Size.Small">
-                            @currentMatch.Vars.Count
-                        </MudChip>
-                    </MudStack>
-                    @for (int i = 0; i < currentMatch.Vars.Count; i++)
-                    {
-                        var index = i;
-                        var item = currentMatch.Vars[i];
-                        <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="mb-1" @key="item">
-                            <MudText>@item.Name <MudChip Size="Size.Small" Color="Color.Info" Class="ml-1">@item.Type</MudChip></MudText>
-                            <MudStack Row="true" Spacing="0">
-                                <MudIconButton @onclick="() => EditVar(item)" Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Variant="Variant.Text" Size="Size.Small" />
-                                <MudIconButton @onclick="() => MoveVar(index, -1)" Icon="@Icons.Material.Filled.ArrowUpward" Color="Color.Default" Variant="Variant.Text" Size="Size.Small" Disabled="@(index == 0)" />
-                                <MudIconButton @onclick="() => MoveVar(index, 1)" Icon="@Icons.Material.Filled.ArrowDownward" Color="Color.Default" Variant="Variant.Text" Size="Size.Small" Disabled="@(index == currentMatch.Vars.Count - 1)" />
-                                <MudIconButton @onclick="async () => await RemoveVar(item)" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Variant="Variant.Text" Size="Size.Small" />
-                            </MudStack>
-                        </MudStack>
-                    }
-                </MudPaper>
-
-                <VariableEditor currentMatch="currentMatch" currentVar="currentVar" EditingVar="_editingVar" OnVarReset="OnVarReset" />
-            </MudStack>
-        </MudPaper>
-    }
-
     <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="mb-2">
         <MudStack Row="true" Align="Align.Center" Spacing="2">
-            <MudText Typo="Typo.h6">@localizationService.GetString("YourMatches")</MudText>
+            <MudText Typo="Typo.subtitle1">@localizationService.GetString("YourMatches")</MudText>
             @if (dict is not null && dict.Count > 0)
             {
                 <MudChip Size="Size.Small" Color="Color.Default">@dict.Count</MudChip>
@@ -125,9 +56,6 @@ else
         </MudStack>
         <MudStack Row="true" Spacing="1" Align="Align.Center">
             <MudIconButton @onclick="SyncNowAsync" Icon="@Icons.Material.Filled.Sync" Color="Color.Default" Variant="Variant.Text" Size="Size.Medium" Disabled="@_syncing" />
-            <MudButton @onclick="() => SaveDictAsync()" Color="Color.Primary" Variant="Variant.Text" Size="Size.Small" StartIcon="@Icons.Material.Filled.Save" Disabled="@_saving">
-                @localizationService.GetString("Save")
-            </MudButton>
             <MudMenu Icon="@Icons.Material.Filled.MoreVert" Color="Color.Default" Variant="Variant.Text" Size="Size.Medium">
                 <MudMenuItem Icon="@Icons.Material.Filled.Upload" OnClick="ImportAsync">@localizationService.GetString("Import")</MudMenuItem>
                 <MudMenuItem Icon="@Icons.Material.Filled.Download" OnClick="ExportAsync">@localizationService.GetString("Export")</MudMenuItem>
@@ -137,18 +65,12 @@ else
 
     @if (dict is not null && dict.Count > 0)
     {
-        <MudStack Row="true" Spacing="2" Align="Align.Center">
-            <MudTextField @bind-Value="_searchQuery"
-                          Label="@localizationService.GetString("SearchMatches")"
-                          Variant="Variant.Outlined" Dense="true"
-                          Adornment="Adornment.Start"
-                          AdornmentIcon="@Icons.Material.Filled.Search"
-                          Class="flex-grow-1" Immediate="true" DebounceInterval="300" />
-            <MudSelect @bind-Value="_sortMode" T="int" Dense="true" Variant="Variant.Outlined" Style="min-width: 140px;">
-                <MudSelectItem T="int" Value="0">@localizationService.GetString("SortByTrigger")</MudSelectItem>
-                <MudSelectItem T="int" Value="1">@localizationService.GetString("SortByRecent")</MudSelectItem>
-            </MudSelect>
-        </MudStack>
+        <MudTextField @bind-Value="_searchQuery"
+                      Label="@localizationService.GetString("SearchMatches")"
+                      Variant="Variant.Outlined" Dense="true"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Class="mb-3 flex-grow-1" Immediate="true" DebounceInterval="300" />
 
         @if (_filteredDict.Any())
         {
@@ -158,8 +80,8 @@ else
             }
             @if (_filteredCount > lazyLoadIndex)
             {
-                <div class="d-flex justify-center mt-3">
-                    <MudButton @onclick="AdjustLazyLoad" Color="Color.Primary" Variant="Variant.Filled">
+                <div class="d-flex justify-center mt-3 mb-2">
+                    <MudButton @onclick="AdjustLazyLoad" Color="Color.Primary" Variant="Variant.Outlined">
                         @localizationService.GetString("LoadMore")
                     </MudButton>
                 </div>
@@ -175,56 +97,49 @@ else
     }
     else
     {
-        <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="pa-8">
+        <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="pa-8">
             <MudIcon Icon="@Icons.Material.Filled.Inbox" Size="Size.Large" Color="Color.Default" />
             <MudText Typo="Typo.body2" Align="Align.Center" Style="opacity: 0.7;">@localizationService.GetString("NoMatchesYet")</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="GoToNewMatch">
+                @localizationService.GetString("AddNewMatch")
+            </MudButton>
         </MudStack>
     }
+
+    <div class="fab-container">
+        <MudFab Color="Color.Primary" Icon="@Icons.Material.Filled.Add" OnClick="GoToNewMatch" Size="Size.Large" />
+    </div>
 }
+
+<style>
+    .fab-container {
+        position: fixed;
+        bottom: calc(72px + env(safe-area-inset-bottom));
+        right: 16px;
+        z-index: 10;
+    }
+</style>
 
 @code {
     bool canTextExpand = false;
     bool _loading = true;
-    bool _showEditor = false;
     string _searchQuery = "";
     int _sortMode = 0;
-    Match currentMatch = new() { Replace = "", Trigger = "", Vars = new() { } };
     private Dictionary<string, Match> dict;
     private List<Var> globalVars = new();
-    private Var currentVar = new() { Params = new() };
     private int lazyLoadIndex = 100;
 #if ANDROID
     private SafObserver _safObserver;
     private WebDavPollingService _webDavPollingService;
     private System.Threading.Timer _gitPollingTimer;
 #endif
-    private string editingKey = null;
     private bool _syncing = false;
     private bool _saving = false;
-    private MudTextField<string> _triggerRef;
-    private List<string> _availableFiles = new();
-
-    private string GetDefaultSourceFile()
-    {
-        var last = Preferences.Get("last_source_file", null);
-        if (!string.IsNullOrEmpty(last) && _availableFiles.Contains(last))
-            return last;
-        if (_availableFiles.Count > 0)
-            return _availableFiles[0];
-        return "base.yml";
-    }
 
     private void UpdateAvailableFiles()
     {
-        _availableFiles = dict?.Values
-            .Select(m => m.SourceFile)
-            .Where(s => !string.IsNullOrEmpty(s))
-            .Distinct()
-            .OrderBy(f => f)
-            .ToList() ?? new();
+        // Kept for sync reload compatibility — files list is now managed by MatchEditor
     }
-    private Var _editingVar = null;
-    private bool _isDirty = false;
 
     private void GoToPermission()
     {
@@ -232,51 +147,9 @@ else
         NavigationManager.NavigateTo("/permission");
     }
 
-    private async Task ToggleEditor()
+    private void GoToNewMatch()
     {
-        if (_isDirty && _showEditor)
-        {
-            var confirm = await dialogService.DisplayConfirmAsync(
-                localizationService.GetString("UnsavedChanges"),
-                localizationService.GetString("DiscardChangesPrompt"),
-                localizationService.GetString("Discard"), localizationService.GetString("Cancel"));
-            if (!confirm) return;
-        }
-        _showEditor = !_showEditor;
-        if (_showEditor)
-        {
-            currentMatch = new() { Replace = "", Trigger = "", Vars = new(), SourceFile = GetDefaultSourceFile() };
-            currentVar = new() { Params = new() };
-            editingKey = null;
-            _editingVar = null;
-            _isDirty = false;
-            await Task.Delay(50);
-            if (_triggerRef is not null)
-                await _triggerRef.FocusAsync();
-        }
-    }
-
-    private async Task OnEditorKeyDown(KeyboardEventArgs e)
-    {
-        _isDirty = true;
-        if (e.Key == "Enter")
-        {
-            await AddItemAsync();
-        }
-        else if (e.Key == "Escape")
-        {
-            CancelEdit();
-        }
-    }
-
-    private void EditVar(Var item)
-    {
-        _editingVar = item;
-        currentVar.Name = item.Name;
-        currentVar.Type = item.Type;
-        currentVar.Params = new(item.Params);
-        _isDirty = true;
-        StateHasChanged();
+        NavigationManager.NavigateTo("/match-editor");
     }
 
     private IEnumerable<KeyValuePair<string, Match>> _filteredDict
@@ -295,19 +168,6 @@ else
 
     private int _filteredCount =>
         string.IsNullOrWhiteSpace(_searchQuery) ? (dict?.Count ?? 0) : _filteredDict.Count();
-
-    private void MoveVar(int index, int direction)
-    {
-        var newIndex = index + direction;
-        if (newIndex < 0 || newIndex >= currentMatch.Vars.Count) return;
-        (currentMatch.Vars[index], currentMatch.Vars[newIndex]) = (currentMatch.Vars[newIndex], currentMatch.Vars[index]);
-    }
-
-    private void OnVarReset(Var v)
-    {
-        _editingVar = null;
-        StateHasChanged();
-    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -409,22 +269,6 @@ else
         StartSafObserver();
 #endif
         _loading = false;
-
-        var query = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.TrimStart('?');
-        var pairs = query.Split('&');
-        foreach (var pair in pairs)
-        {
-            var kv = pair.Split('=', 2);
-            if (kv.Length == 2 && kv[0] == "edit")
-            {
-                var editKey = Uri.UnescapeDataString(kv[1]);
-                if (dict.ContainsKey(editKey))
-                {
-                    await EditItem(new KeyValuePair<string, Match>(editKey, dict[editKey]));
-                }
-                break;
-            }
-        }
     }
     private async Task ImportAsync()
     {
@@ -571,64 +415,6 @@ else
             await dialogService.DisplayConfirmAsync(localizationService.GetString("Error"), localizationService.GetString("RestartAppToEnsureSync") + e.Message);
         }
     }
-    private async Task RemoveVar(Var item)
-    {
-        var confirm = await dialogService.DisplayConfirmAsync(
-            localizationService.GetString("DeleteVariable"),
-            string.Format(localizationService.GetString("ConfirmDeleteVariable"), item.Name),
-            localizationService.GetString("Delete"),
-            localizationService.GetString("Cancel"));
-        if (confirm)
-        {
-            if (_editingVar == item)
-            {
-                _editingVar = null;
-                currentVar = new() { Params = new() };
-            }
-            currentMatch.Vars.Remove(item);
-        }
-    }
-    private async Task AddItemAsync()
-    {
-        try
-        {
-            var copy = new Match(currentMatch); // Otherwise the dic just uses the same memory LOL!
-            if (!(string.IsNullOrEmpty(copy.Trigger) || string.IsNullOrEmpty(copy.Replace)))
-            {
-                if (editingKey is not null && editingKey != copy.Trigger && dict.ContainsKey(editingKey))
-                {
-                    var oldItem = dict[editingKey];
-                    dict.Remove(editingKey);
-                    SendMessage("Remove", oldItem);
-                }
-                if (dict.ContainsKey(copy.Trigger) && (editingKey is null || editingKey != copy.Trigger))
-                {
-                    var overwrite = await dialogService.DisplayConfirmAsync(
-                        localizationService.GetString("DuplicateTrigger"),
-                        string.Format(localizationService.GetString("DuplicateTrigger"), copy.Trigger));
-                    if (!overwrite)
-                        return;
-                }
-                if (!string.IsNullOrEmpty(copy.SourceFile))
-                    Preferences.Set("last_source_file", copy.SourceFile);
-                dict[copy.Trigger] = new(copy); // need another copy :(
-                copy.Replace = copy.Replace.Replace("\\n", Environment.NewLine);
-                SendMessage("Add", copy);
-                UpdateAvailableFiles();
-                editingKey = null;
-                currentMatch = new() { Replace = "", Trigger = "", Vars = new(), SourceFile = GetDefaultSourceFile() };
-                _isDirty = false;
-            }
-            else
-            {
-                await dialogService.DisplayConfirmAsync(localizationService.GetString("EmptyValues"), localizationService.GetString("FillOutRequiredParameters"));
-            }
-        }
-        catch (Exception e)
-        {
-            await dialogService.DisplayConfirmAsync(localizationService.GetString("Error"), localizationService.GetString("RestartAppToEnsureSync") + e.Message);
-        }
-    }
     private async Task RemoveItemAsync(Match item)
     {
         try
@@ -637,14 +423,14 @@ else
             {
                 SendMessage("Remove", item);
                 UpdateAvailableFiles();
+                await SaveDictAsync(silent: true);
                 Snackbar.Add(string.Format(localizationService.GetString("MatchDeleted"), item.Trigger), Severity.Success, config =>
                 {
                     config.Action = localizationService.GetString("Undo");
                     config.ActionColor = Color.Primary;
-                    config.Onclick = snackbar =>
+                    config.Onclick = async snackbar =>
                     {
-                        UndoDelete(item);
-                        return Task.CompletedTask;
+                        await UndoDelete(item);
                     };
                 });
             }
@@ -659,11 +445,12 @@ else
         }
     }
 
-    private void UndoDelete(Match item)
+    private async Task UndoDelete(Match item)
     {
         dict[item.Trigger] = item;
         SendMessage("Add", item);
         UpdateAvailableFiles();
+        await SaveDictAsync(silent: true);
         Snackbar.Add(localizationService.GetString("Restored"), Severity.Success);
     }
     private async Task SaveDictAsync(bool silent = false)
@@ -818,41 +605,11 @@ else
         System.Diagnostics.Debug.WriteLine($"[Index] SendMessage: cmd={cmd}, trigger={value?.Trigger}");
         WeakReferenceMessenger.Default.Send(new AcServiceMessage((cmd, value)));
     }
-    private async Task EditItem(KeyValuePair<string, Match> item)
+    private void EditItem(KeyValuePair<string, Match> item)
     {
-        if (_isDirty && _showEditor)
-        {
-            var confirm = await dialogService.DisplayConfirmAsync(
-                localizationService.GetString("UnsavedChanges"),
-                localizationService.GetString("DiscardChangesPrompt"),
-                localizationService.GetString("Discard"), localizationService.GetString("Cancel"));
-            if (!confirm) return;
-        }
-        editingKey = item.Key;
-        currentMatch = new Match(item.Value);
-        if (item.Value.Vars is not null)
-        {
-            currentMatch.Vars = item.Value.Vars.Select(v => new Var(v)).ToList();
-        }
-        currentVar = new() { Params = new() };
-        _editingVar = null;
-        _isDirty = false;
-        _showEditor = true;
-        StateHasChanged();
-        await Task.Delay(50);
-        if (_triggerRef is not null)
-            await _triggerRef.FocusAsync();
+        NavigationManager.NavigateTo($"/match-editor?edit={Uri.EscapeDataString(item.Key)}");
     }
 
-    private void CancelEdit()
-    {
-        editingKey = null;
-        _editingVar = null;
-        currentMatch = new() { Replace = "", Trigger = "", Vars = new(), SourceFile = GetDefaultSourceFile() };
-        _showEditor = false;
-        _isDirty = false;
-        StateHasChanged();
-    }
     private void AdjustLazyLoad()
     {
         var diff = dict.Count - lazyLoadIndex;

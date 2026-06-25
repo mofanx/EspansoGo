@@ -64,6 +64,11 @@
             _pageTitle = LocalizationService.GetString("PermissionCheck");
             _showBack = false;
         }
+        else if (path.StartsWith("match-editor"))
+        {
+            _pageTitle = path.Contains("edit=") ? LocalizationService.GetString("EditMatch") : LocalizationService.GetString("AddNewMatch");
+            _showBack = true;
+        }
         else if (path.StartsWith("syncsetup"))
         {
             _pageTitle = LocalizationService.GetString("SetupWizardTitle");
@@ -119,6 +124,8 @@
             NavigationManager.NavigateTo("/syncsettings");
         else if (path.StartsWith("files/"))
             NavigationManager.NavigateTo("/files");
+        else if (path.StartsWith("match-editor"))
+            NavigationManager.NavigateTo("/");
         else if (path.StartsWith("syncsetup"))
             NavigationManager.NavigateTo("/syncsettings");
         else if (path.StartsWith("syncsettings") || path.StartsWith("globalvars") || path.StartsWith("packages"))

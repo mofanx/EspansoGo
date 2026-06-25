@@ -1,0 +1,312 @@
+@page "/match-editor"
+@using CommunityToolkit.Mvvm.Messaging
+@using EspansoGo.Models
+@using EspansoGo.Services
+@using System.Text.Json
+@inject ILocalizationService localizationService
+@inject ISnackbar Snackbar
+@inject EspansoGo.Services.IDialogService dialogService
+@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
+@inject SyncManager SyncManager
+@implements IDisposable
+
+@if (_loading)
+{
+    <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="pa-8">
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" />
+    </MudStack>
+}
+else
+{
+    <MudStack Spacing="3" Class="pa-4">
+        <MudText Typo="Typo.h6" Align="Align.Center">
+            @(editingKey is not null ? localizationService.GetString("EditMatch") : localizationService.GetString("AddNewMatch"))
+        </MudText>
+
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudStack Spacing="3">
+                <MudTextField @ref="_triggerRef" @bind-Value="currentMatch.Trigger"
+                              Label="@localizationService.GetString("Trigger")" Variant="Variant.Outlined" Dense="true"
+                              KeyDown="OnEditorKeyDown" />
+                <MudTextField @bind-Value="currentMatch.Replace"
+                              Label="@localizationService.GetString("Replacement")" Variant="Variant.Outlined"
+                              Lines="6" AutoResize="true" MaxLines="20" />
+                <MudCheckBox @bind-Value="currentMatch.Word" Label="@localizationService.GetString("WholeWord")" />
+                <MudSelect T="string" @bind-Value="currentMatch.SourceFile" Label="@localizationService.GetString("File")" Variant="Variant.Outlined" Dense="true">
+                    <MudSelectItem T="string" Value="@(null)">@localizationService.GetString("Uncategorized")</MudSelectItem>
+                    @foreach (var f in _availableFiles)
+                    {
+                        <MudSelectItem T="string" Value="@f">@f</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+                    <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="mb-2">
+                        <MudText Typo="Typo.subtitle2">@localizationService.GetString("Variables")</MudText>
+                        <MudChip Color="Color.Secondary" Size="Size.Small">
+                            @currentMatch.Vars.Count
+                        </MudChip>
+                    </MudStack>
+                    @for (int i = 0; i < currentMatch.Vars.Count; i++)
+                    {
+                        var index = i;
+                        var item = currentMatch.Vars[i];
+                        <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="mb-1" @key="item">
+                            <MudText>@item.Name <MudChip Size="Size.Small" Color="Color.Info" Class="ml-1">@item.Type</MudChip></MudText>
+                            <MudStack Row="true" Spacing="0">
+                                <MudIconButton @onclick="() => EditVar(item)" Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Variant="Variant.Text" Size="Size.Small" />
+                                <MudIconButton @onclick="() => MoveVar(index, -1)" Icon="@Icons.Material.Filled.ArrowUpward" Color="Color.Default" Variant="Variant.Text" Size="Size.Small" Disabled="@(index == 0)" />
+                                <MudIconButton @onclick="() => MoveVar(index, 1)" Icon="@Icons.Material.Filled.ArrowDownward" Color="Color.Default" Variant="Variant.Text" Size="Size.Small" Disabled="@(index == currentMatch.Vars.Count - 1)" />
+                                <MudIconButton @onclick="async () => await RemoveVar(item)" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Variant="Variant.Text" Size="Size.Small" />
+                            </MudStack>
+                        </MudStack>
+                    }
+                </MudPaper>
+
+                <VariableEditor currentMatch="currentMatch" currentVar="currentVar" EditingVar="_editingVar" OnVarReset="OnVarReset" />
+
+                <MudStack Row="true" Spacing="2" Justify="@Justify.Center">
+                    <MudButton @onclick="SaveMatch" Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Size="Size.Large">
+                        @(editingKey is not null ? localizationService.GetString("Save") : localizationService.GetString("Add"))
+                    </MudButton>
+                    <MudButton @onclick="CancelEdit" Color="Color.Default" Variant="Variant.Text" Size="Size.Large">
+                        @localizationService.GetString("Cancel")
+                    </MudButton>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudStack>
+}
+
+@code {
+    private bool _loading = true;
+    private string editingKey = null;
+    private Match currentMatch = new() { Replace = "", Trigger = "", Vars = new() };
+    private Var currentVar = new() { Params = new() };
+    private Var _editingVar = null;
+    private MudTextField<string> _triggerRef;
+    private Dictionary<string, Match> dict;
+    private List<Var> globalVars = new();
+    private List<string> _availableFiles = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        if (File.Exists(AppSettings.DictPath))
+        {
+            try
+            {
+                var json = await File.ReadAllTextAsync(AppSettings.DictPath);
+                dict = JsonSerializer.Deserialize<Dictionary<string, Match>>(json);
+            }
+            catch
+            {
+                dict = new();
+            }
+        }
+        else
+        {
+            dict = new();
+        }
+
+        if (File.Exists(AppSettings.GlobalVarsPath))
+        {
+            try
+            {
+                var gvJson = await File.ReadAllTextAsync(AppSettings.GlobalVarsPath);
+                globalVars = JsonSerializer.Deserialize<List<Var>>(gvJson);
+            }
+            catch { }
+        }
+
+        UpdateAvailableFiles();
+
+        var query = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.TrimStart('?');
+        var pairs = query.Split('&');
+        foreach (var pair in pairs)
+        {
+            var kv = pair.Split('=', 2);
+            if (kv.Length == 2 && kv[0] == "edit")
+            {
+                var editKey = Uri.UnescapeDataString(kv[1]);
+                if (dict.ContainsKey(editKey))
+                {
+                    editingKey = editKey;
+                    var source = dict[editKey];
+                    currentMatch = new Match
+                    {
+                        Trigger = source.Trigger,
+                        Replace = source.Replace,
+                        Word = source.Word,
+                        Form = source.Form,
+                        Form_Fields = source.Form_Fields,
+                        Triggers = source.Triggers is not null ? new(source.Triggers) : null,
+                        LeftWord = source.LeftWord,
+                        RightWord = source.RightWord,
+                        PropagateCase = source.PropagateCase,
+                        UppercaseStyle = source.UppercaseStyle,
+                        Regex = source.Regex,
+                        SourceFile = source.SourceFile,
+                        Vars = source.Vars?.Select(v => new Var(v)).ToList() ?? new()
+                    };
+                }
+                break;
+            }
+        }
+
+        if (editingKey is null)
+        {
+            currentMatch.SourceFile = GetDefaultSourceFile();
+        }
+
+        _loading = false;
+        await Task.Delay(50);
+        if (_triggerRef is not null)
+            await _triggerRef.FocusAsync();
+    }
+
+    private string GetDefaultSourceFile()
+    {
+        var last = Preferences.Get("last_source_file", null);
+        if (!string.IsNullOrEmpty(last) && _availableFiles.Contains(last))
+            return last;
+        if (_availableFiles.Count > 0)
+            return _availableFiles[0];
+        return "base.yml";
+    }
+
+    private void UpdateAvailableFiles()
+    {
+        _availableFiles = dict?.Values
+            .Select(m => m.SourceFile)
+            .Where(s => !string.IsNullOrEmpty(s))
+            .Distinct()
+            .OrderBy(f => f)
+            .ToList() ?? new();
+    }
+
+    private async Task OnEditorKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SaveMatch();
+        }
+        else if (e.Key == "Escape")
+        {
+            _ = CancelEdit();
+        }
+    }
+
+    private void EditVar(Var item)
+    {
+        _editingVar = item;
+        currentVar.Name = item.Name;
+        currentVar.Type = item.Type;
+        currentVar.Params = new(item.Params);
+        StateHasChanged();
+    }
+
+    private void MoveVar(int index, int direction)
+    {
+        var newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= currentMatch.Vars.Count) return;
+        (currentMatch.Vars[index], currentMatch.Vars[newIndex]) = (currentMatch.Vars[newIndex], currentMatch.Vars[index]);
+    }
+
+    private void OnVarReset(Var v)
+    {
+        _editingVar = null;
+        StateHasChanged();
+    }
+
+    private async Task RemoveVar(Var item)
+    {
+        var confirm = await dialogService.DisplayConfirmAsync(
+            localizationService.GetString("DeleteVariable"),
+            string.Format(localizationService.GetString("ConfirmDeleteVariable"), item.Name),
+            localizationService.GetString("Delete"),
+            localizationService.GetString("Cancel"));
+        if (confirm)
+        {
+            if (_editingVar == item)
+            {
+                _editingVar = null;
+                currentVar = new() { Params = new() };
+            }
+            currentMatch.Vars.Remove(item);
+        }
+    }
+
+    private async Task SaveMatch()
+    {
+        try
+        {
+            var copy = new Match(currentMatch);
+            if (string.IsNullOrEmpty(copy.Trigger) || string.IsNullOrEmpty(copy.Replace))
+            {
+                await dialogService.DisplayConfirmAsync(localizationService.GetString("EmptyValues"), localizationService.GetString("FillOutRequiredParameters"));
+                return;
+            }
+
+            if (dict.ContainsKey(copy.Trigger) && (editingKey is null || editingKey != copy.Trigger))
+            {
+                var overwrite = await dialogService.DisplayConfirmAsync(
+                    localizationService.GetString("DuplicateTrigger"),
+                    string.Format(localizationService.GetString("DuplicateTrigger"), copy.Trigger));
+                if (!overwrite)
+                    return;
+            }
+
+            if (editingKey is not null && editingKey != copy.Trigger && dict.ContainsKey(editingKey))
+            {
+                var oldItem = dict[editingKey];
+                dict.Remove(editingKey);
+                SendMessage("Remove", oldItem);
+            }
+
+            if (!string.IsNullOrEmpty(copy.SourceFile))
+                Preferences.Set("last_source_file", copy.SourceFile);
+
+            if (copy.Replace is not null)
+                copy.Replace = copy.Replace.Replace("\\n", Environment.NewLine);
+            dict[copy.Trigger] = new(copy);
+            SendMessage("Add", copy);
+
+            var str = JsonSerializer.Serialize(dict);
+            await File.WriteAllTextAsync(AppSettings.DictPath, str);
+
+            var config = SyncManager.GetConfig();
+            if (config.Method != SyncMethod.None && !string.IsNullOrEmpty(config.SyncUri))
+            {
+                _ = SyncManager.PushAsync(dict, globalVars);
+            }
+
+            Snackbar.Add(localizationService.GetString("SaveSuccessfulMessage"), Severity.Success);
+            NavigationManager.NavigateTo("/");
+        }
+        catch (Exception e)
+        {
+            await dialogService.DisplayConfirmAsync(localizationService.GetString("Error"), localizationService.GetString("RestartAppToEnsureSync") + e.Message);
+        }
+    }
+
+    private async Task CancelEdit()
+    {
+        var confirm = await dialogService.DisplayConfirmAsync(
+            localizationService.GetString("UnsavedChanges"),
+            localizationService.GetString("DiscardChangesPrompt"),
+            localizationService.GetString("Discard"), localizationService.GetString("Cancel"));
+        if (!confirm) return;
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void SendMessage(string cmd, Match value)
+    {
+        WeakReferenceMessenger.Default.Send(new AcServiceMessage((cmd, value)));
+    }
+
+    public void Dispose()
+    {
+    }
+}
