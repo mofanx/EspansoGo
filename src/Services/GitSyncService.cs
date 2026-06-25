@@ -87,13 +87,20 @@ namespace EspansoGo.Services
                 var matchDir = Path.Combine(_localRepoPath, "match");
                 Directory.CreateDirectory(matchDir);
 
-                var group = new MatchGroup
+                var grouped = _yamlWorkspace.GroupMatchesBySourceFile(dict);
+                foreach (var (fileName, matches) in grouped)
                 {
-                    Matches = dict.Values.ToList(),
-                    GlobalVars = globalVars ?? new List<Var>()
-                };
-                var yaml = _yamlWorkspace.SerializeMatchGroup(group);
-                await File.WriteAllTextAsync(Path.Combine(matchDir, "espansogo.yml"), yaml, ct);
+                    var group = new MatchGroup { Matches = matches };
+                    var yaml = _yamlWorkspace.SerializeMatchGroup(group);
+                    await File.WriteAllTextAsync(Path.Combine(matchDir, fileName), yaml, ct);
+                }
+
+                if (globalVars != null && globalVars.Count > 0)
+                {
+                    var gvGroup = new MatchGroup { GlobalVars = globalVars };
+                    var gvYaml = _yamlWorkspace.SerializeMatchGroup(gvGroup);
+                    await File.WriteAllTextAsync(Path.Combine(matchDir, "global_vars.yml"), gvYaml, ct);
+                }
 
                 await RunGitAsync("add -A", _localRepoPath, ct);
                 var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");

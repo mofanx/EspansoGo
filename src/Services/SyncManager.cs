@@ -685,13 +685,20 @@ namespace EspansoGo.Services
                     return result;
                 }
 
-                var group = new MatchGroup
+                var grouped = _yamlWorkspace.GroupMatchesBySourceFile(dict);
+                foreach (var (fileName, matches) in grouped)
                 {
-                    Matches = dict.Values.ToList(),
-                    GlobalVars = globalVars ?? new List<Var>()
-                };
-                var yaml = _yamlWorkspace.SerializeMatchGroup(group);
-                await _webDavClient.PutFileAsync("espansogo.yml", yaml, ct);
+                    var group = new MatchGroup { Matches = matches };
+                    var yaml = _yamlWorkspace.SerializeMatchGroup(group);
+                    await _webDavClient.PutFileAsync(fileName, yaml, ct);
+                }
+
+                if (globalVars != null && globalVars.Count > 0)
+                {
+                    var gvGroup = new MatchGroup { GlobalVars = globalVars };
+                    var gvYaml = _yamlWorkspace.SerializeMatchGroup(gvGroup);
+                    await _webDavClient.PutFileAsync("global_vars.yml", gvYaml, ct);
+                }
 
                 var stateJson = JsonSerializer.Serialize(_state, new JsonSerializerOptions
                 {

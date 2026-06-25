@@ -205,23 +205,34 @@ namespace EspansoGo.Services
 
         public async Task WriteToFolderAsync(string folderPath, Dictionary<string, Match> dict, List<Var> globalVars = null, CancellationToken ct = default)
         {
+            var grouped = GroupMatchesBySourceFile(dict);
+
             if (IsSafPath(folderPath))
             {
 #if ANDROID
                 if (_safManager == null) return;
-                var existingFiles = _safManager.ListYamlFiles(folderPath);
-                foreach (var f in existingFiles)
-                {
-                    try { _safManager.DeleteFileAsync(f); } catch { }
-                }
+                var existingSafFiles = _safManager.ListYamlFiles(folderPath)
+                    .Select(u => System.IO.Path.GetFileName(u))
+                    .Where(n => !n.StartsWith(".") && !n.StartsWith("_") && n != "global_vars.yml")
+                    .ToHashSet();
 
-                var grouped = GroupMatchesByTriggerPrefix(dict);
                 foreach (var (fileName, matches) in grouped)
                 {
                     var docUri = _safManager.CreateDocumentUri(folderPath, fileName);
                     if (docUri == null) continue;
                     var group = new MatchGroup { Matches = matches };
                     await WriteFileAsync(docUri, group, ct);
+                    existingSafFiles.Remove(fileName);
+                }
+
+                foreach (var staleFile in existingSafFiles)
+                {
+                    try
+                    {
+                        var staleUri = _safManager.CreateDocumentUri(folderPath, staleFile);
+                        if (staleUri != null) _safManager.DeleteFileAsync(staleUri);
+                    }
+                    catch { }
                 }
 
                 if (globalVars != null && globalVars.Count > 0)
@@ -239,21 +250,21 @@ namespace EspansoGo.Services
 
             Directory.CreateDirectory(folderPath);
 
-            var fsExistingFiles = EnumerateYamlFiles(folderPath);
-            foreach (var f in fsExistingFiles)
-            {
-                if (!Path.GetFileName(f).StartsWith("."))
-                {
-                    try { File.Delete(f); } catch { }
-                }
-            }
+            var existingFiles = EnumerateYamlFiles(folderPath)
+                .Where(f => !Path.GetFileName(f).StartsWith("_") && Path.GetFileName(f) != "global_vars.yml")
+                .ToDictionary(f => Path.GetFileName(f), f => f);
 
-            var fsGrouped = GroupMatchesByTriggerPrefix(dict);
-            foreach (var (fileName, matches) in fsGrouped)
+            foreach (var (fileName, matches) in grouped)
             {
                 var targetFile = Path.Combine(folderPath, fileName);
                 var group = new MatchGroup { Matches = matches };
                 await WriteFileAsync(targetFile, group, ct);
+                existingFiles.Remove(fileName);
+            }
+
+            foreach (var staleKv in existingFiles)
+            {
+                try { File.Delete(staleKv.Value); } catch { }
             }
 
             if (globalVars != null && globalVars.Count > 0)
@@ -262,6 +273,21 @@ namespace EspansoGo.Services
                 var gvGroup = new MatchGroup { GlobalVars = globalVars };
                 await WriteFileAsync(gvFile, gvGroup, ct);
             }
+        }
+
+        public List<(string fileName, List<Match> matches)> GroupMatchesBySourceFile(Dictionary<string, Match> dict)
+        {
+            var groups = new Dictionary<string, List<Match>>();
+            foreach (var kv in dict)
+            {
+                var fileName = kv.Value.SourceFile;
+                if (string.IsNullOrEmpty(fileName))
+                    fileName = GetGroupPrefix(kv.Key) + ".yml";
+                if (!groups.ContainsKey(fileName))
+                    groups[fileName] = new List<Match>();
+                groups[fileName].Add(kv.Value);
+            }
+            return groups.Select(g => (g.Key, g.Value)).ToList();
         }
 
         private List<(string fileName, List<Match> matches)> GroupMatchesByTriggerPrefix(Dictionary<string, Match> dict)
