@@ -11,15 +11,12 @@
 
 <MudStack Spacing="3">
     <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="mb-1">
-        <MudStack Row="true" Align="Align.Center" Spacing="2">
-            <MudText Typo="Typo.h6">@localizationService.GetString("GlobalVariables")</MudText>
-            @if (globalVars.Count > 0)
-            {
-                <MudChip Size="Size.Small" Color="Color.Default">@globalVars.Count</MudChip>
-            }
-        </MudStack>
+        @if (globalVars.Count > 0)
+        {
+            <MudChip Size="Size.Small" Color="Color.Default">@globalVars.Count</MudChip>
+        }
         <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ToggleEditor" Class="px-4">
-            <MudText Typo="Typo.h6">
+            <MudText Typo="Typo.subtitle1">
                 @(editingIndex is not null ? localizationService.GetString("EditGlobalVar") : localizationService.GetString("AddGlobalVar"))
             </MudText>
             <MudIcon Icon="@(_showEditor ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)" Class="ms-1" />

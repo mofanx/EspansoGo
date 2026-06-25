@@ -19,10 +19,6 @@
 else
 {
     <MudStack Spacing="3" Class="pa-4">
-        <MudText Typo="Typo.h6" Align="Align.Center">
-            @(editingKey is not null ? localizationService.GetString("EditMatch") : localizationService.GetString("AddNewMatch"))
-        </MudText>
-
         <MudPaper Class="pa-4" Elevation="1">
             <MudStack Spacing="3">
                 <MudTextField @ref="_triggerRef" @bind-Value="currentMatch.Trigger"

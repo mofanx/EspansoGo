@@ -17,7 +17,7 @@
 }
 else
 {
-    <MudStack AlignItems="AlignItems.Center" Spacing="4" Class="pa-4">
+    <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="pa-4">
         <MudIcon Icon="@Icons.Material.Filled.AccessibilityNew" Size="Size.Large" Color="Color.Primary" />
 
         @if (canTextExpand)
@@ -37,15 +37,15 @@ else
             </MudText>
 
             <MudStack Spacing="2" Justify="@Justify.Center" Class="mt-4">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large"
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
                            StartIcon="@Icons.Material.Filled.Settings" OnClick="OpenAccessibilitySettings">
                     @localizationService.GetString("ConsentAndOpenSettings")
                 </MudButton>
-                <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large"
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" FullWidth="true"
                            StartIcon="@Icons.Material.Filled.Refresh" OnClick="RecheckPermission">
                     @localizationService.GetString("RecheckPermission")
                 </MudButton>
-                <MudButton Variant="Variant.Text" Color="Color.Default" Size="Size.Large" OnClick="SkipForNow">
+                <MudButton Variant="Variant.Text" Color="Color.Default" Size="Size.Large" FullWidth="true" OnClick="SkipForNow">
                     @localizationService.GetString("SkipForNow")
                 </MudButton>
             </MudStack>

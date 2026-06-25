@@ -2,10 +2,11 @@
 @inject EspansoGo.Services.IDialogService dialogService
 @inject ISnackbar Snackbar
 
-<MudTextField T="string" HelperText="@localizationService.GetString("Length")" Counter="textList[0].Length" Label="@localizationService.GetString("Text1")" Variant="Variant.Outlined" @bind-Value="@textList[0]" Lines="3" Class="mb-2" />
-<MudTextField T="string" HelperText="@localizationService.GetString("Length")" Counter="textList[1].Length" Label="@localizationService.GetString("Text2")" Variant="Variant.Outlined" @bind-Value="@textList[1]" Lines="3" Class="mb-3" />
+<MudStack Spacing="3">
+<MudTextField T="string" HelperText="@localizationService.GetString("Length")" Counter="textList[0].Length" Label="@localizationService.GetString("Text1")" Variant="Variant.Outlined" @bind-Value="@textList[0]" Lines="3" />
+<MudTextField T="string" HelperText="@localizationService.GetString("Length")" Counter="textList[1].Length" Label="@localizationService.GetString("Text2")" Variant="Variant.Outlined" @bind-Value="@textList[1]" Lines="3" />
 
-<MudStack Row="true" Justify="Justify.SpaceBetween" Align="Align.Center" Class="mb-3">
+<MudStack Row="true" Justify="Justify.SpaceBetween" Align="Align.Center">
     <MudNumericField Label="@localizationService.GetString("ProcessOnTextNumber")" Min="1" Max="2" @bind-Value="@index" Dense="true" Variant="Variant.Outlined" />
     <MudStack Row="true" Spacing="1">
         <MudIconButton Icon="@Icons.Material.Filled.SwapVert" OnClick="SwapText" Size="Size.Small" Title="@localizationService.GetString("Swap")" />
@@ -13,7 +14,7 @@
     </MudStack>
 </MudStack>
 
-<MudExpansionPanels Elevation="0" Outlined="true" Class="mb-3" MultiSelection="false">
+<MudExpansionPanels Elevation="0" Outlined="true" MultiSelection="false">
     <MudExpansionPanel Text="@localizationService.GetString("Basic")" MaxHeight="1000" Expanded="@(_activeMode == 0)" ExpandedChanged="@(EventCallback.Factory.Create<bool>(this, OnBasicExpandedChanged))">
         <MudStack Spacing="2">
             <MudCheckBox Label="@localizationService.GetString("Compare")" @bind-Value="@compare" Color="Color.Primary" />
@@ -53,7 +54,7 @@
     </MudExpansionPanel>
 </MudExpansionPanels>
 
-<MudStack Spacing="2" Class="mb-3">
+<MudStack Spacing="2">
     <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@processing" OnClick="Process" StartIcon="@Icons.Material.Filled.PlayArrow">
         @if (processing)
         {
@@ -104,6 +105,7 @@
         </MudCardContent>
     </MudCard>
 }
+</MudStack>
 
 @code {
     private List<string> textList = new() { "", "" };

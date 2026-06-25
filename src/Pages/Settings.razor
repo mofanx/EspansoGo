@@ -75,25 +75,24 @@
     <MudText Typo="Typo.h5" Class="mt-2 mb-1">@LocalizationService.GetString("AccessibilityService")</MudText>
     <MudPaper Elevation="1" Class="pa-4">
         <MudStack Spacing="2">
-            <MudStack Row="true" Align="Align.Center" Justify="@Justify.SpaceBetween">
+            <MudStack Row="true" Align="Align.Center" Justify="@Justify.SpaceBetween" Style="width: 100%;">
                 <MudStack Row="true" Align="Align.Center" Spacing="2">
                     <MudIcon Icon="@Icons.Material.Filled.AccessibilityNew" Color="Color.Primary" />
-                    <MudText Typo="Typo.subtitle1">@LocalizationService.GetString("AccessibilityService")</MudText>
+                    @if (_accessibilityEnabled)
+                    {
+                        <MudChip Color="Color.Success" Size="Size.Small">@LocalizationService.GetString("AccessibilityStatusEnabled")</MudChip>
+                    }
+                    else
+                    {
+                        <MudChip Color="Color.Warning" Size="Size.Small">@LocalizationService.GetString("AccessibilityNotEnabled")</MudChip>
+                    }
                 </MudStack>
-                @if (_accessibilityEnabled)
-                {
-                    <MudChip Color="Color.Success" Size="Size.Small">@LocalizationService.GetString("AccessibilityStatusEnabled")</MudChip>
-                }
-                else
-                {
-                    <MudChip Color="Color.Warning" Size="Size.Small">@LocalizationService.GetString("AccessibilityNotEnabled")</MudChip>
-                }
             </MudStack>
 
             @if (!_accessibilityEnabled)
             {
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="EnableAccessibility" Disabled="@_enabling"
-                           StartIcon="@Icons.Material.Filled.PowerSettingsNew">
+                           StartIcon="@Icons.Material.Filled.PowerSettingsNew" FullWidth="true">
                     @if (_enabling) { @LocalizationService.GetString("Enabling") } else { @LocalizationService.GetString("OneClickEnable") }
                 </MudButton>
 
@@ -101,12 +100,11 @@
                 {
                     <MudAlert Severity="Severity.Info" Class="mt-2" ShowDismissIcon="true" Dismissed="@(_shizukuHintDismissed)"
                               DismissedChanged="@(v => { _shizukuHintDismissed = v; Microsoft.Maui.Storage.Preferences.Set("shizuku_hint_dismissed", v); StateHasChanged(); })">
-                        <MudStack Spacing="1">
-                            <MudText Typo="Typo.body2">@LocalizationService.GetString("ShizukuHint")</MudText>
-                            <MudButton Variant="Variant.Text" Color="Color.Info" Size="Size.Small" OnClick="OpenShizukuWebsite">
-                                @LocalizationService.GetString("LearnMore")
-                            </MudButton>
-                        </MudStack>
+                        <MudText Typo="Typo.body2">@LocalizationService.GetString("ShizukuHint")</MudText>
+                        <MudButton Variant="Variant.Text" Color="Color.Info" Size="Size.Small" OnClick="OpenShizukuWebsite"
+                                   OnClick:stopPropagation="true">
+                            @LocalizationService.GetString("LearnMore")
+                        </MudButton>
                     </MudAlert>
                 }
             }

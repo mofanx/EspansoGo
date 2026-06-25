@@ -32,6 +32,7 @@
 }
 else
 {
+    <MudStack Spacing="3">
     @if (!canTextExpand)
     {
         <MudAlert Severity="Severity.Warning" Class="mb-3">
@@ -109,6 +110,7 @@ else
     <div class="fab-container">
         <MudFab Color="Color.Primary" Icon="@Icons.Material.Filled.Add" OnClick="GoToNewMatch" Size="Size.Large" />
     </div>
+    </MudStack>
 }
 
 <style>

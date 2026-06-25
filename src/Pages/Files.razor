@@ -37,7 +37,7 @@
         }
         else
         {
-            <MudPaper Elevation="1" Class="pa-2">
+            <MudPaper Elevation="1" Class="pa-4">
                 <MudList>
                     @foreach (var group in _fileGroups)
                     {
@@ -77,7 +77,7 @@ else
             @if (_filteredMatches.Count == 0)
             {
                 <MudPaper Elevation="1" Class="pa-8 text-center">
-                    <MudText Typo="Typo.body1" Color="Color.Default">@LocalizationService.GetString("EmptyFile")</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Default">@LocalizationService.GetString("EmptyFile")</MudText>
                 </MudPaper>
             }
             else
