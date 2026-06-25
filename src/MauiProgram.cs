@@ -44,6 +44,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<SyncManager>();
         builder.Services.AddSingleton<HubClient>();
         builder.Services.AddSingleton<ImportService>();
+        builder.Services.AddSingleton<MigrationService>();
         return builder.Build();
     }
 }

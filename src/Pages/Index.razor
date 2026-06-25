@@ -17,6 +17,7 @@
 @inject SyncManager SyncManager
 @inject YamlWorkspace YamlWorkspace
 @inject ImportService ImportService
+@inject MigrationService MigrationService
 @inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
 @implements IDisposable
 
@@ -322,6 +323,20 @@ else
                 {
                     File.Delete(AppSettings.OldDictPath);
                     await dialogService.DisplayConfirmAsync(localizationService.GetString("MigratedSuccessfully"), localizationService.GetString("MigratedSuccessfullyMessage"));
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(string.Format(localizationService.GetString("MigrationFailed"), ex.Message), Severity.Error);
+            }
+        }
+        if (MigrationService.NeedsMigration)
+        {
+            try
+            {
+                if (!MigrationService.MigrateIfNeeded())
+                {
+                    Snackbar.Add(localizationService.GetString("MigrationFailed"), Severity.Error);
                 }
             }
             catch (Exception ex)
