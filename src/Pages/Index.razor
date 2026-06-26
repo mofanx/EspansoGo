@@ -50,7 +50,7 @@ else
 
         <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="px-2">
             <MudStack Row="true" Align="Align.Center" Spacing="2">
-                <MudText Typo="Typo.subtitle1">@localizationService.GetString("YourMatches")</MudText>
+                <MudText Typo="Typo.body2" Class="font-weight-medium">@localizationService.GetString("YourMatches")</MudText>
                 @if (dict is not null && dict.Count > 0)
                 {
                     <MudChip Size="Size.Small" Color="Color.Default">@dict.Count</MudChip>
