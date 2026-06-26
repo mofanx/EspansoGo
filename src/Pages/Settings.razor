@@ -110,7 +110,7 @@
                                     <MudText Typo="Typo.caption" Style="opacity: 0.6;">@LocalizationService.GetString("ShizukuDescription")</MudText>
                                 </MudStack>
                             </MudStack>
-                            <MudSwitch T="bool" @bind-Checked="@_useShizuku" @bind-Checked:after="OnUseShizukuChanged" Color="Color.Secondary" />
+                            <MudSwitch T="bool" @bind-Value="@_useShizuku" @bind-Value:after="OnUseShizukuChanged" Color="Color.Secondary" />
                         </MudStack>
                     }
 

@@ -248,7 +248,7 @@ namespace EspansoGo.Services
             }
         }
 
-        private async Task<bool> GrantRuntimePermissionViaShizuku(string packageName, string permission)
+        private Task<bool> GrantRuntimePermissionViaShizuku(string packageName, string permission)
         {
             try
             {
@@ -261,7 +261,7 @@ namespace EspansoGo.Services
                 if (binder == null)
                 {
                     Android.Util.Log.Error("ShizukuA11y", "Failed to get PackageManager binder");
-                    return false;
+                    return Task.FromResult(false);
                 }
 
                 // Get IPackageManager interface
@@ -279,12 +279,12 @@ namespace EspansoGo.Services
                 grantRuntimePermissionMethod.Invoke(iPackageManager, packageName, permission, 0);
 
                 Android.Util.Log.Debug("ShizukuA11y", $"Granted permission {permission} for {packageName}");
-                return true;
+                return Task.FromResult(true);
             }
             catch (Exception e)
             {
                 Android.Util.Log.Error("ShizukuA11y", $"GrantRuntimePermissionViaShizuku failed: {e.Message}");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
