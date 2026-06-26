@@ -1153,7 +1153,19 @@
   <data name="Enabling" xml:space="preserve">
     <value>Enabling...</value>
   </data>
+  <data name="Disabling" xml:space="preserve">
+    <value>Disabling...</value>
+  </data>
+  <data name="Disable" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="AccessibilityDisabled" xml:space="preserve">
+    <value>Accessibility service disabled</value>
+  </data>
   <data name="ShizukuAuthNeeded" xml:space="preserve">
     <value>Shizuku authorization required. Please grant permission in the dialog.</value>
+  </data>
+  <data name="ShizukuDescription" xml:space="preserve">
+    <value>Enable one-click accessibility toggle</value>
   </data>
 </root>

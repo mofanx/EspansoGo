@@ -1153,7 +1153,19 @@
   <data name="Enabling" xml:space="preserve">
     <value>正在启用...</value>
   </data>
+  <data name="Disabling" xml:space="preserve">
+    <value>正在禁用...</value>
+  </data>
+  <data name="Disable" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="AccessibilityDisabled" xml:space="preserve">
+    <value>无障碍服务已禁用</value>
+  </data>
   <data name="ShizukuAuthNeeded" xml:space="preserve">
     <value>需要 Shizuku 授权，请在弹窗中允许权限。</value>
+  </data>
+  <data name="ShizukuDescription" xml:space="preserve">
+    <value>开启后可实现应用内一键切换无障碍</value>
   </data>
 </root>

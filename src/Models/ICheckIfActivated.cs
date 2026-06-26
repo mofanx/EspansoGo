@@ -10,5 +10,7 @@ namespace EspansoGo.Models
         public bool IsShizukuAuthorized();
         public Task<bool> RequestShizukuAuthorization();
         public Task<bool> TryEnableAccessibility();
+        public Task<bool> TryDisableAccessibility();
+        public bool HasWriteSecureSettingsPermission();
     }
 }

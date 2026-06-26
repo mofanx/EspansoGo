@@ -8,6 +8,8 @@ using AndroidX.Core.App;
 using AndroidX.Core.Content;
 using EspansoGo.Models;
 using Microsoft.Maui.ApplicationModel;
+using System;
+using Android.OS;
 
 namespace EspansoGo.Services
 {
@@ -15,6 +17,7 @@ namespace EspansoGo.Services
     {
         private const string ShizukuProviderAuthority = "moe.shizuku.privileged.api";
         private const string ShizukuPermission = "moe.shizuku.manager.permission.API_V23";
+        private const string WriteSecureSettingsPermission = "android.permission.WRITE_SECURE_SETTINGS";
         private const int ShizukuRequestCode = 10001;
 
         public bool IsActivated()
@@ -152,11 +155,238 @@ namespace EspansoGo.Services
 
         public async Task<bool> TryEnableAccessibility()
         {
-            // TODO: Implement via Shizuku bindUserService to call hidden API
-            // setAccessibilityServiceEnabled on AccessibilityManager
-            // For now, fallback to opening system settings
-            await Task.Delay(100);
-            return false;
+            try
+            {
+                var context = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.BaseContext;
+                if (context == null) return false;
+
+                var packageName = context.PackageName;
+                var serviceName = $"{packageName}.ExpanderAccessibilityservice";
+
+                // Check if already has WRITE_SECURE_SETTINGS permission
+                bool hasWriteSecureSettings = ContextCompat.CheckSelfPermission(context, WriteSecureSettingsPermission) == Permission.Granted;
+
+                if (!hasWriteSecureSettings)
+                {
+                    // Try to grant WRITE_SECURE_SETTINGS via Shizuku
+                    if (!IsShizukuAuthorized())
+                    {
+                        return false;
+                    }
+
+                    // Grant WRITE_SECURE_SETTINGS permission via shell command through Shizuku
+                    bool granted = await GrantPermissionViaShizuku(WriteSecureSettingsPermission);
+                    if (!granted)
+                    {
+                        Android.Util.Log.Error("ShizukuA11y", "Failed to grant WRITE_SECURE_SETTINGS via Shizuku");
+                        return false;
+                    }
+
+                    // Wait for permission to take effect
+                    await Task.Delay(500);
+                    hasWriteSecureSettings = HasWriteSecureSettingsPermission();
+                }
+
+                if (!hasWriteSecureSettings)
+                {
+                    return false;
+                }
+
+                // Enable accessibility service using Settings.Secure
+                try
+                {
+                    var enabledServices = Settings.Secure.GetString(context.ContentResolver,
+                        Settings.Secure.EnabledAccessibilityServices);
+
+                    var component = $"{packageName}/{serviceName}";
+
+                    if (!string.IsNullOrEmpty(enabledServices) && enabledServices.Contains(component))
+                        return true;
+
+                    var newEnabledServices = string.IsNullOrEmpty(enabledServices)
+                        ? component
+                        : $"{enabledServices}:{component}";
+
+                    Settings.Secure.PutString(context.ContentResolver,
+                        Settings.Secure.EnabledAccessibilityServices, newEnabledServices);
+                    Settings.Secure.PutInt(context.ContentResolver,
+                        Settings.Secure.AccessibilityEnabled, 1);
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Android.Util.Log.Error("ShizukuA11y", $"Settings modification failed: {ex.Message}");
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Android.Util.Log.Error("ShizukuA11y", $"TryEnableAccessibility failed: {e.Message}");
+                return false;
+            }
+        }
+
+        private async Task<bool> GrantPermissionViaShizuku(string permission)
+        {
+            try
+            {
+                var context = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.BaseContext;
+                if (context == null) return false;
+
+                var packageName = context.PackageName;
+
+                // Use Shizuku SystemServiceHelper to get PackageManager service
+                // Then call grantRuntimePermission through the Binder
+                var granted = await GrantRuntimePermissionViaShizuku(packageName, permission);
+                return granted;
+            }
+            catch (Exception e)
+            {
+                Android.Util.Log.Error("ShizukuA11y", $"GrantPermissionViaShizuku failed: {e.Message}");
+                return false;
+            }
+        }
+
+        private async Task<bool> GrantRuntimePermissionViaShizuku(string packageName, string permission)
+        {
+            try
+            {
+                // Use reflection to call Shizuku's SystemServiceHelper.getSystemService
+                var systemServiceHelperClass = Java.Lang.Class.ForName("rikka.shizuku.SystemServiceHelper");
+                var getSystemServiceMethod = systemServiceHelperClass.GetMethod("getSystemService",
+                    Java.Lang.Class.FromType(typeof(Java.Lang.String)));
+
+                var binder = getSystemServiceMethod.Invoke(null, "package") as Android.OS.IBinder;
+                if (binder == null)
+                {
+                    Android.Util.Log.Error("ShizukuA11y", "Failed to get PackageManager binder");
+                    return false;
+                }
+
+                // Get IPackageManager interface
+                var iPackageManagerClass = Java.Lang.Class.ForName("android.content.pm.IPackageManager");
+                var asInterfaceMethod = iPackageManagerClass.GetMethod("asInterface",
+                    Java.Lang.Class.FromType(typeof(Android.OS.IBinder)));
+                var iPackageManager = asInterfaceMethod.Invoke(null, binder);
+
+                // Call grantRuntimePermission
+                var grantRuntimePermissionMethod = iPackageManagerClass.GetMethod("grantRuntimePermission",
+                    Java.Lang.Class.FromType(typeof(Java.Lang.String)),
+                    Java.Lang.Class.FromType(typeof(Java.Lang.String)),
+                    Java.Lang.Integer.Type);
+
+                grantRuntimePermissionMethod.Invoke(iPackageManager, packageName, permission, 0);
+
+                Android.Util.Log.Debug("ShizukuA11y", $"Granted permission {permission} for {packageName}");
+                return true;
+            }
+            catch (Exception e)
+            {
+                Android.Util.Log.Error("ShizukuA11y", $"GrantRuntimePermissionViaShizuku failed: {e.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> TryDisableAccessibility()
+        {
+            try
+            {
+                var context = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.BaseContext;
+                if (context == null) return false;
+
+                var packageName = context.PackageName;
+                var serviceName = $"{packageName}.ExpanderAccessibilityservice";
+
+                // Check if already has WRITE_SECURE_SETTINGS permission
+                bool hasWriteSecureSettings = ContextCompat.CheckSelfPermission(context, WriteSecureSettingsPermission) == Permission.Granted;
+
+                if (!hasWriteSecureSettings)
+                {
+                    // Try to grant WRITE_SECURE_SETTINGS via Shizuku
+                    if (!IsShizukuAuthorized())
+                    {
+                        return false;
+                    }
+
+                    // Grant WRITE_SECURE_SETTINGS permission via shell command through Shizuku
+                    bool granted = await GrantPermissionViaShizuku(WriteSecureSettingsPermission);
+                    if (!granted)
+                    {
+                        Android.Util.Log.Error("ShizukuA11y", "Failed to grant WRITE_SECURE_SETTINGS via Shizuku");
+                        return false;
+                    }
+
+                    // Wait for permission to take effect
+                    await Task.Delay(500);
+                    hasWriteSecureSettings = HasWriteSecureSettingsPermission();
+                }
+
+                if (!hasWriteSecureSettings)
+                {
+                    return false;
+                }
+
+                // Disable accessibility service using Settings.Secure
+                try
+                {
+                    var enabledServices = Settings.Secure.GetString(context.ContentResolver,
+                        Settings.Secure.EnabledAccessibilityServices);
+
+                    if (string.IsNullOrEmpty(enabledServices))
+                        return true;
+
+                    var component = $"{packageName}/{serviceName}";
+
+                    if (!enabledServices.Contains(component))
+                        return true;
+
+                    var newEnabledServices = enabledServices.Split(':')
+                        .Where(s => s != component)
+                        .ToList();
+
+                    if (newEnabledServices.Count == 0)
+                    {
+                        Settings.Secure.PutString(context.ContentResolver,
+                            Settings.Secure.EnabledAccessibilityServices, "");
+                        Settings.Secure.PutInt(context.ContentResolver,
+                            Settings.Secure.AccessibilityEnabled, 0);
+                    }
+                    else
+                    {
+                        Settings.Secure.PutString(context.ContentResolver,
+                            Settings.Secure.EnabledAccessibilityServices,
+                            string.Join(":", newEnabledServices));
+                    }
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Android.Util.Log.Error("ShizukuA11y", $"Settings modification failed: {ex.Message}");
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Android.Util.Log.Error("ShizukuA11y", $"TryDisableAccessibility failed: {e.Message}");
+                return false;
+            }
+        }
+
+        public bool HasWriteSecureSettingsPermission()
+        {
+            try
+            {
+                var context = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.BaseContext;
+                if (context == null) return false;
+
+                return ContextCompat.CheckSelfPermission(context, WriteSecureSettingsPermission) == Permission.Granted;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
