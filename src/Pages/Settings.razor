@@ -56,7 +56,7 @@
         </MudListItem>
         <MudListItem Clickable="true" OnClick="GoSyncSettings" Class="px-4 py-3">
             <MudStack Row="true" Align="Align.Center" Justify="@Justify.SpaceBetween" Style="width: 100%;">
-                <MudStack Row="true" Align="Align.Center" Spacing="3">
+                <MudStack Row="true" Align="Align.Center" Spacing="2">
                     <MudIcon Icon="@Icons.Material.Filled.Sync" Size="Size.Small" Color="Color.Primary" />
                     <MudText Typo="Typo.body2">@LocalizationService.GetString("SyncSettings")</MudText>
                 </MudStack>
@@ -72,7 +72,7 @@
         </MudListItem>
         <MudListItem Clickable="true" OnClick="GoGlobalVars" Class="px-4 py-3">
             <MudStack Row="true" Align="Align.Center" Justify="@Justify.SpaceBetween" Style="width: 100%;">
-                <MudStack Row="true" Align="Align.Center" Spacing="3">
+                <MudStack Row="true" Align="Align.Center" Spacing="2">
                     <MudIcon Icon="@Icons.Material.Filled.DataObject" Size="Size.Small" Color="Color.Primary" />
                     <MudText Typo="Typo.body2">@LocalizationService.GetString("GlobalVariables")</MudText>
                 </MudStack>
@@ -89,7 +89,7 @@
         <!-- Accessibility Service Toggle -->
         <MudListItem Class="px-4 py-3">
             <MudStack Row="true" Align="Align.Center" Justify="@Justify.SpaceBetween" Style="width: 100%;">
-                <MudStack Row="true" Align="Align.Center" Spacing="3">
+                <MudStack Row="true" Align="Align.Center" Spacing="2">
                     <MudIcon Icon="@Icons.Material.Filled.AccessibilityNew" Size="Size.Small" Color="Color.Primary" />
                     <MudStack Spacing="0">
                         <MudText Typo="Typo.body2">@LocalizationService.GetString("AccessibilityService")</MudText>
@@ -105,7 +105,7 @@
         {
             <MudListItem Class="px-4 py-3">
                 <MudStack Row="true" Align="Align.Center" Justify="@Justify.SpaceBetween" Style="width: 100%;">
-                    <MudStack Row="true" Align="Align.Center" Spacing="3">
+                    <MudStack Row="true" Align="Align.Center" Spacing="2">
                         <MudIcon Icon="@Icons.Material.Filled.Android" Size="Size.Small" Color="Color.Secondary" />
                         <MudStack Spacing="0">
                             <MudText Typo="Typo.body2">@LocalizationService.GetString("ShizukuOptimization")</MudText>
@@ -139,7 +139,7 @@
         </MudListItem>
         <MudListItem Clickable="true" OnClick="QuitApp" Class="px-4 py-3">
             <MudStack Row="true" Align="Align.Center" Justify="@Justify.SpaceBetween" Style="width: 100%;">
-                <MudStack Row="true" Align="Align.Center" Spacing="3">
+                <MudStack Row="true" Align="Align.Center" Spacing="2">
                     <MudIcon Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Small" Color="Color.Error" />
                     <MudText Typo="Typo.body2" Color="Color.Error">@LocalizationService.GetString("QuitApp")</MudText>
                 </MudStack>
@@ -151,6 +151,9 @@
 <style>
     .settings-container {
         background-color: var(--mud-palette-surface);
+    }
+    .alert-compact {
+        background-color: rgba(var(--mud-palette-info-rgb), 0.08);
     }
 </style>
 
