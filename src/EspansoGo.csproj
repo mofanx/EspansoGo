@@ -65,6 +65,11 @@
     <PackageReference Include="Xamarin.AndroidX.DocumentFile" Version="1.0.1.23" />
     <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.2.0.9" ExcludeAssets="all" PrivateAssets="all" />
   </ItemGroup>
+  <ItemGroup Condition="$(TargetFramework.Contains('android'))">
+    <!-- SZ-3: Shizuku API + Provider AAR (Bind=false, accessed via JNI reflection) -->
+    <AndroidMavenLibrary Include="dev.rikka.shizuku:api" Version="13.1.5" Bind="false" />
+    <AndroidMavenLibrary Include="dev.rikka.shizuku:provider" Version="13.1.5" Bind="false" />
+  </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\Images\" />
   </ItemGroup>

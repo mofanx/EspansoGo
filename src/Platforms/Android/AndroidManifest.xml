@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="23" 
 		  android:versionName="7.0.0">
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:supportsRtl="true"></application>
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -10,4 +9,19 @@
 	<uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
 	<uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
 	<uses-sdk android:minSdkVersion="24" android:targetSdkVersion="35" />
+
+	<!-- SZ-1: Shizuku package visibility for targetSdk 30+ -->
+	<queries>
+		<package android:name="moe.shizuku.privileged.api" />
+	</queries>
+
+	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:supportsRtl="true">
+		<!-- SZ-3: Shizuku Provider registration (required by dev.rikka.shizuku:provider) -->
+		<provider android:name="rikka.shizuku.ShizukuProvider"
+				  android:authorities="com.mofanx.espansogo.shizuku"
+				  android:multiprocess="false"
+				  android:enabled="true"
+				  android:exported="true"
+				  android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+	</application>
 </manifest>

@@ -15,7 +15,6 @@ namespace EspansoGo.Services
 {
     internal class CheckIfActivated : ICheckIfActivated
     {
-        private const string ShizukuProviderAuthority = "moe.shizuku.privileged.api";
         private const string ShizukuPermission = "moe.shizuku.manager.permission.API_V23";
         private const string WriteSecureSettingsPermission = "android.permission.WRITE_SECURE_SETTINGS";
         private const int ShizukuRequestCode = 10001;
@@ -101,18 +100,11 @@ namespace EspansoGo.Services
         {
             try
             {
-                var context = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.BaseContext;
-                if (context == null) return false;
-
-                // Check if Shizuku package is installed
-                var pm = context.PackageManager;
-                var shizukuInfo = pm.GetPackageInfo("moe.shizuku.privileged.api", 0);
-                if (shizukuInfo == null) return false;
-
-                // Check if Shizuku binder is alive by querying its ContentProvider
-                var uri = Android.Net.Uri.Parse($"content://{ShizukuProviderAuthority}");
-                using var cursor = context.ContentResolver.Query(uri, null, null, null, null);
-                return cursor != null;
+                // SZ-2: Use official Shizuku.pingBinder() via JNI
+                var shizukuClass = Java.Lang.Class.ForName("rikka.shizuku.Shizuku");
+                var pingMethod = shizukuClass.GetMethod("pingBinder");
+                var result = pingMethod.Invoke(null);
+                return result is Java.Lang.Boolean boolResult && boolResult.BooleanValue();
             }
             catch
             {
@@ -124,10 +116,13 @@ namespace EspansoGo.Services
         {
             try
             {
-                var context = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.BaseContext;
-                if (context == null) return false;
-
-                return ContextCompat.CheckSelfPermission(context, ShizukuPermission) == Permission.Granted;
+                // SZ-2: Use official Shizuku.checkSelfPermission() via JNI
+                var shizukuClass = Java.Lang.Class.ForName("rikka.shizuku.Shizuku");
+                var checkMethod = shizukuClass.GetMethod("checkSelfPermission");
+                var result = checkMethod.Invoke(null);
+                if (result is Java.Lang.Integer intResult)
+                    return intResult.IntValue() == 0; // PackageManager.PERMISSION_GRANTED == 0
+                return false;
             }
             catch
             {
@@ -139,11 +134,10 @@ namespace EspansoGo.Services
         {
             try
             {
-                var activity = Platform.CurrentActivity;
-                if (activity == null) return Task.FromResult(false);
-
-                // Use ActivityCompat to request the Shizuku permission
-                ActivityCompat.RequestPermissions(activity, new[] { ShizukuPermission }, ShizukuRequestCode);
+                // SZ-4: Use official Shizuku.requestPermission() via JNI
+                var shizukuClass = Java.Lang.Class.ForName("rikka.shizuku.Shizuku");
+                var requestMethod = shizukuClass.GetMethod("requestPermission", Java.Lang.Integer.Type);
+                requestMethod.Invoke(null, Java.Lang.Integer.ValueOf(ShizukuRequestCode));
                 return Task.FromResult(true);
             }
             catch (Exception e)
@@ -252,31 +246,52 @@ namespace EspansoGo.Services
         {
             try
             {
-                // Use reflection to call Shizuku's SystemServiceHelper.getSystemService
+                // SZ-5: Use Shizuku SystemServiceHelper to get PackageManager binder
                 var systemServiceHelperClass = Java.Lang.Class.ForName("rikka.shizuku.SystemServiceHelper");
                 var getSystemServiceMethod = systemServiceHelperClass.GetMethod("getSystemService",
                     Java.Lang.Class.FromType(typeof(Java.Lang.String)));
 
-                var binder = getSystemServiceMethod.Invoke(null, "package") as Android.OS.IBinder;
-                if (binder == null)
+                var rawBinder = getSystemServiceMethod.Invoke(null, new Java.Lang.String("package"));
+                if (rawBinder == null)
                 {
                     Android.Util.Log.Error("ShizukuA11y", "Failed to get PackageManager binder");
                     return Task.FromResult(false);
                 }
 
-                // Get IPackageManager interface
-                var iPackageManagerClass = Java.Lang.Class.ForName("android.content.pm.IPackageManager");
-                var asInterfaceMethod = iPackageManagerClass.GetMethod("asInterface",
-                    Java.Lang.Class.FromType(typeof(Android.OS.IBinder)));
-                var iPackageManager = asInterfaceMethod.Invoke(null, binder as Java.Lang.Object);
+                // SZ-5: Wrap binder with ShizukuBinderWrapper before using
+                var wrapperClass = Java.Lang.Class.ForName("rikka.shizuku.ShizukuBinderWrapper");
+                var wrapperConstructor = wrapperClass.GetConstructor(Java.Lang.Class.FromType(typeof(Android.OS.IBinder)));
+                var wrappedBinder = wrapperConstructor.NewInstance(rawBinder);
 
-                // Call grantRuntimePermission
-                var grantRuntimePermissionMethod = iPackageManagerClass.GetMethod("grantRuntimePermission",
+                if (wrappedBinder == null)
+                {
+                    Android.Util.Log.Error("ShizukuA11y", "Failed to wrap binder with ShizukuBinderWrapper");
+                    return Task.FromResult(false);
+                }
+
+                // Get IPackageManager interface via Stub.asInterface
+                var stubClass = Java.Lang.Class.ForName("android.content.pm.IPackageManager$Stub");
+                var asInterfaceMethod = stubClass.GetMethod("asInterface",
+                    Java.Lang.Class.FromType(typeof(Android.OS.IBinder)));
+                var iPackageManager = asInterfaceMethod.Invoke(null, wrappedBinder);
+
+                if (iPackageManager == null)
+                {
+                    Android.Util.Log.Error("ShizukuA11y", "Failed to get IPackageManager");
+                    return Task.FromResult(false);
+                }
+
+                // Call grantRuntimePermission(packageName, permission, userId=0)
+                var iPackageManagerClass = Java.Lang.Class.ForName("android.content.pm.IPackageManager");
+                var grantMethod = iPackageManagerClass.GetMethod("grantRuntimePermission",
                     Java.Lang.Class.FromType(typeof(Java.Lang.String)),
                     Java.Lang.Class.FromType(typeof(Java.Lang.String)),
                     Java.Lang.Integer.Type);
 
-                grantRuntimePermissionMethod.Invoke(iPackageManager, packageName, permission, 0);
+                grantMethod.Invoke(iPackageManager,
+                    new Java.Lang.String(packageName),
+                    new Java.Lang.String(permission),
+                    Java.Lang.Integer.ValueOf(0));
 
                 Android.Util.Log.Debug("ShizukuA11y", $"Granted permission {permission} for {packageName}");
                 return Task.FromResult(true);

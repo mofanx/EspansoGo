@@ -148,6 +148,7 @@
     private bool _accessibilityEnabled = false;
     private bool _enabling = false;
     private bool _shizukuAvailable = false;
+    private bool _shizukuAuthorized = false;
     private bool _shizukuHintDismissed = false;
     private bool _useShizuku = false;
 
@@ -166,9 +167,40 @@
         });
     }
 
-    private void OnUseShizukuChanged()
+    private async Task OnUseShizukuChanged()
     {
         Microsoft.Maui.Storage.Preferences.Set("use_shizuku", _useShizuku);
+
+        // SZ-6: When turning on, immediately trigger Shizuku authorization
+        if (_useShizuku)
+        {
+            if (!_shizukuAvailable)
+            {
+                Snackbar.Add(LocalizationService.GetString("ShizukuHint"), Severity.Info);
+                _useShizuku = false;
+                Microsoft.Maui.Storage.Preferences.Set("use_shizuku", false);
+                StateHasChanged();
+                return;
+            }
+
+            if (!AcService.IsShizukuAuthorized())
+            {
+                var requested = await AcService.RequestShizukuAuthorization();
+                if (!requested)
+                {
+                    Snackbar.Add(LocalizationService.GetString("ShizukuAuthNeeded"), Severity.Warning);
+                    _useShizuku = false;
+                    Microsoft.Maui.Storage.Preferences.Set("use_shizuku", false);
+                    StateHasChanged();
+                    return;
+                }
+                Snackbar.Add(LocalizationService.GetString("ShizukuAuthNeeded"), Severity.Info);
+            }
+            else
+            {
+                Snackbar.Add(LocalizationService.GetString("ShizukuOptimization"), Severity.Success);
+            }
+        }
     }
 
     private void OnLanguageChanged()
@@ -217,6 +249,14 @@
         {
             _accessibilityEnabled = AcService.IsActivated();
             _shizukuAvailable = AcService.IsShizukuAvailable();
+            _shizukuAuthorized = AcService.IsShizukuAuthorized();
+
+            // SZ-6: If Shizuku switch is on but authorization was denied, revert
+            if (_useShizuku && _shizukuAvailable && !_shizukuAuthorized)
+            {
+                _useShizuku = false;
+                Microsoft.Maui.Storage.Preferences.Set("use_shizuku", false);
+            }
         });
         StateHasChanged();
     }
@@ -233,21 +273,13 @@
                 // If Shizuku is available and enabled, try to use it first
                 if (_shizukuAvailable && _useShizuku)
                 {
-                    // Try to grant Shizuku authorization if not authorized
+                    // Check Shizuku authorization (should already be authorized via SZ-6 switch flow)
                     if (!AcService.IsShizukuAuthorized())
                     {
-                        await AcService.RequestShizukuAuthorization();
-                        // Wait a moment for permission result
-                        await Task.Delay(500);
-                        // Re-check authorization status
-                        if (!AcService.IsShizukuAuthorized())
-                        {
-                            Snackbar.Add(LocalizationService.GetString("ShizukuAuthNeeded"), Severity.Info);
-                            AcService.OpenSettings();
-                            _accessibilityEnabled = false;
-                            StateHasChanged();
-                            return;
-                        }
+                        Snackbar.Add(LocalizationService.GetString("ShizukuAuthNeeded"), Severity.Info);
+                        _accessibilityEnabled = false;
+                        StateHasChanged();
+                        return;
                     }
 
                     // Try to enable accessibility via Shizuku

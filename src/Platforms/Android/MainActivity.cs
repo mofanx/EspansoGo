@@ -11,11 +11,26 @@ public class MainActivity : MauiAppCompatActivity
     public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Android.Content.PM.Permission[] grantResults)
     {
         base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
-        // Handle Shizuku permission request result (requestCode = 10001)
+    }
+
+    protected override void OnActivityResult(int requestCode, Result resultCode, Android.Content.Intent? data)
+    {
+        base.OnActivityResult(requestCode, resultCode, data);
+
+        // SZ-4: Forward Shizuku permission result to Shizuku.onRequestPermissionResult
         if (requestCode == 10001)
         {
-            // Permission result will be checked by IsShizukuAuthorized() on next check
-            // No need to handle here as the UI will re-check status
+            try
+            {
+                var shizukuClass = Java.Lang.Class.ForName("rikka.shizuku.Shizuku");
+                var method = shizukuClass.GetMethod("onRequestPermissionResult",
+                    Java.Lang.Integer.Type, Java.Lang.Integer.Type);
+                method.Invoke(null, Java.Lang.Integer.ValueOf(requestCode), Java.Lang.Integer.ValueOf((int)resultCode));
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"Shizuku onRequestPermissionResult failed: {e.Message}");
+            }
         }
     }
 }
