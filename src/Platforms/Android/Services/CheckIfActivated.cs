@@ -268,7 +268,7 @@ namespace EspansoGo.Services
                 var iPackageManagerClass = Java.Lang.Class.ForName("android.content.pm.IPackageManager");
                 var asInterfaceMethod = iPackageManagerClass.GetMethod("asInterface",
                     Java.Lang.Class.FromType(typeof(Android.OS.IBinder)));
-                var iPackageManager = asInterfaceMethod.Invoke(null, binder);
+                var iPackageManager = asInterfaceMethod.Invoke(null, binder as Java.Lang.Object);
 
                 // Call grantRuntimePermission
                 var grantRuntimePermissionMethod = iPackageManagerClass.GetMethod("grantRuntimePermission",
