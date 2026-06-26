@@ -9,55 +9,56 @@
 @inject SyncManager SyncManager
 @implements IDisposable
 
-<MudStack Spacing="3">
-    <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="mb-1">
-        @if (globalVars.Count > 0)
+<MudPaper Elevation="0" Class="page-container">
+    <MudStack Spacing="2">
+        <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="px-2">
+            @if (globalVars.Count > 0)
+            {
+                <MudChip Size="Size.Small" Color="Color.Default">@globalVars.Count</MudChip>
+            }
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ToggleEditor" Class="px-3" Size="Size.Small">
+                <MudText Typo="Typo.body2">
+                    @(editingIndex is not null ? localizationService.GetString("EditGlobalVar") : localizationService.GetString("AddGlobalVar"))
+                </MudText>
+                <MudIcon Icon="@(_showEditor ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)" Class="ms-1" Size="Size.Small" />
+            </MudButton>
+        </MudStack>
+
+        @if (_showEditor)
         {
-            <MudChip Size="Size.Small" Color="Color.Default">@globalVars.Count</MudChip>
-        }
-        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ToggleEditor" Class="px-4">
-            <MudText Typo="Typo.subtitle1">
-                @(editingIndex is not null ? localizationService.GetString("EditGlobalVar") : localizationService.GetString("AddGlobalVar"))
-            </MudText>
-            <MudIcon Icon="@(_showEditor ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)" Class="ms-1" />
-        </MudButton>
-    </MudStack>
+            <MudPaper Class="pa-3" Elevation="0" Class="editor-section">
+                <MudStack Spacing="2">
+                    <MudTextField @ref="_nameRef" @bind-Value="currentVar.Name" Label="@localizationService.GetString("VariableName")" Variant="Variant.Outlined" Dense="true" KeyDown="OnEditorKeyDown" />
+                    <MudSelect @bind-Value="currentVar.Type" T="string" Label="@localizationService.GetString("VariableType")" Dense="true" Variant="Variant.Outlined">
+                        <MudSelectItem T="string" Value="@("echo")">echo</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("date")">date</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("clipboard")">clipboard</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("random")">random</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("choice")">choice</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("shell")">shell</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("script")">script</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("http")">http</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("javascript")">javascript</MudSelectItem>
+                    </MudSelect>
 
-    @if (_showEditor)
-    {
-        <MudPaper Class="pa-4" Elevation="1">
-            <MudStack Spacing="3">
-                <MudTextField @ref="_nameRef" @bind-Value="currentVar.Name" Label="@localizationService.GetString("VariableName")" Variant="Variant.Outlined" Dense="true" KeyDown="OnEditorKeyDown" />
-                <MudSelect @bind-Value="currentVar.Type" T="string" Label="@localizationService.GetString("VariableType")" Dense="true" Variant="Variant.Outlined" Class="mb-2">
-                    <MudSelectItem T="string" Value="@("echo")">echo</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("date")">date</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("clipboard")">clipboard</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("random")">random</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("choice")">choice</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("shell")">shell</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("script")">script</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("http")">http</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("javascript")">javascript</MudSelectItem>
-                </MudSelect>
-
-                @if (!string.IsNullOrEmpty(currentVar.Type))
-                {
-                    <MudText Typo="Typo.caption" Style="opacity: 0.6;">@localizationService.GetString($"VarTypeHelp_{currentVar.Type}")</MudText>
-                    <MudDivider Class="mb-2" />
-                    @switch (currentVar.Type)
+                    @if (!string.IsNullOrEmpty(currentVar.Type))
                     {
-                        case "echo":
-                            <MudTextField @bind-Value="currentVar.Params.Echo" T="string" Label="@localizationService.GetString("Echo")" Variant="Variant.Outlined" Dense="true" Class="mb-2" />
-                            break;
-                        case "date":
-                            <MudTextField @bind-Value="currentVar.Params.Format" T="string" Label="@localizationService.GetString("Format")" Variant="Variant.Outlined" Dense="true" Class="mb-2" />
-                            <MudTextField @bind-Value="currentVar.Params.Offset" T="long" Label="@localizationService.GetString("Offset")" Variant="Variant.Outlined" Dense="true" Class="mb-2" />
-                            break;
-                        case "random":
-                            <MudTextField @bind-Value="_choicesText" T="string" Label="@localizationService.GetString("Choices")" Variant="Variant.Outlined" Dense="true" Class="mb-2"
-                                          Hint="@localizationService.GetString("ChoicesHint")" />
-                            break;
-                        case "choice":
+                        <MudText Typo="Typo.caption" Style="opacity: 0.6;">@localizationService.GetString($"VarTypeHelp_{currentVar.Type}")</MudText>
+                        <MudDivider Class="my-2" />
+                        @switch (currentVar.Type)
+                        {
+                            case "echo":
+                                <MudTextField @bind-Value="currentVar.Params.Echo" T="string" Label="@localizationService.GetString("Echo")" Variant="Variant.Outlined" Dense="true" Class="mb-2" />
+                                break;
+                            case "date":
+                                <MudTextField @bind-Value="currentVar.Params.Format" T="string" Label="@localizationService.GetString("Format")" Variant="Variant.Outlined" Dense="true" Class="mb-2" />
+                                <MudTextField @bind-Value="currentVar.Params.Offset" T="long" Label="@localizationService.GetString("Offset")" Variant="Variant.Outlined" Dense="true" Class="mb-2" />
+                                break;
+                            case "random":
+                                <MudTextField @bind-Value="_choicesText" T="string" Label="@localizationService.GetString("Choices")" Variant="Variant.Outlined" Dense="true" Class="mb-2"
+                                              Hint="@localizationService.GetString("ChoicesHint")" />
+                                break;
+                            case "choice":
                             <MudTextField @bind-Value="_choicesText" T="string" Label="@localizationService.GetString("Choices")" Variant="Variant.Outlined" Dense="true" Class="mb-2"
                                           Hint="@localizationService.GetString("ChoicesHint")" />
                             break;
@@ -416,3 +417,12 @@
         localizationService.OnLanguageChanged -= OnLanguageChanged;
     }
 }
+
+<style>
+    .page-container {
+        background-color: var(--mud-palette-surface);
+    }
+    .editor-section {
+        background-color: rgba(var(--mud-palette-action-default-rgb), 0.04);
+    }
+</style>

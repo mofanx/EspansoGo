@@ -14,37 +14,38 @@
 
 @if (string.IsNullOrEmpty(FileName))
 {
-    <MudStack Spacing="3">
-        <MudStack Row="true" Justify="@Justify.FlexEnd" Align="Align.Center">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
-                @LocalizationService.GetString("NewFile")
-            </MudButton>
-        </MudStack>
+    <MudPaper Elevation="0" Class="page-container">
+        <MudStack Spacing="2">
+            <MudStack Row="true" Justify="@Justify.FlexEnd" Align="Align.Center" Class="px-2">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
+                    @LocalizationService.GetString("NewFile")
+                </MudButton>
+            </MudStack>
 
-        @if (_loading)
-        {
-            @for (int i = 0; i < 4; i++)
+            @if (_loading)
             {
-                <MudSkeleton Height="56px" Elevation="1" />
+                @for (int i = 0; i < 4; i++)
+                {
+                    <MudSkeleton Height="56px" Elevation="0" Class="rounded-lg" />
+                }
             }
-        }
-        else if (_fileGroups.Count == 0)
-        {
-            <MudPaper Elevation="1" Class="pa-8 text-center">
-                <MudText Typo="Typo.body2" Color="Color.Default">@LocalizationService.GetString("EmptyFile")</MudText>
-            </MudPaper>
-        }
-        else
-        {
-            <MudPaper Elevation="1" Class="pa-4">
-                <MudList>
+            else if (_fileGroups.Count == 0)
+            {
+                <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="pa-6">
+                    <MudIcon Icon="@Icons.Material.Filled.FolderOpen" Size="Size.Large" Color="Color.Default" />
+                    <MudText Typo="Typo.body2" Align="Align.Center" Style="opacity: 0.7;">@LocalizationService.GetString("EmptyFile")</MudText>
+                </MudStack>
+            }
+            else
+            {
+                <MudList DisablePadding="true">
                     @foreach (var group in _fileGroups)
                     {
-                        <MudListItem Clickable="true" OnClick="() => OpenFile(group.Key)">
+                        <MudListItem Clickable="true" OnClick="() => OpenFile(group.Key)" Class="px-4 py-3">
                             <MudStack Row="true" Align="Align.Center" Justify="@Justify.SpaceBetween" Style="width: 100%;">
                                 <MudStack Row="true" Align="Align.Center" Spacing="2">
-                                    <MudIcon Icon="@Icons.Material.Filled.Description" Color="Color.Primary" />
-                                    <MudText Typo="Typo.subtitle1">@(group.Key == null ? LocalizationService.GetString("Uncategorized") : group.Key)</MudText>
+                                    <MudIcon Icon="@Icons.Material.Filled.Description" Size="Size.Small" Color="Color.Primary" />
+                                    <MudText Typo="Typo.body2">@(group.Key == null ? LocalizationService.GetString("Uncategorized") : group.Key)</MudText>
                                 </MudStack>
                                 <MudChip Size="Size.Small" Color="Color.Info" Variant="Variant.Outlined">
                                     @string.Format(LocalizationService.GetString("MatchesCount"), group.Count())
@@ -53,9 +54,9 @@
                         </MudListItem>
                     }
                 </MudList>
-            </MudPaper>
-        }
-    </MudStack>
+            }
+        </MudStack>
+    </MudPaper>
 }
 else
 {
@@ -427,6 +428,13 @@ else
         }
     }
 
+<style>
+    .page-container {
+        background-color: var(--mud-palette-surface);
+    }
+</style>
+
+@code {
     private async Task SaveDictAsync()
     {
         try

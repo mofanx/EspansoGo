@@ -23,94 +23,96 @@
 
 @if (_loading)
 {
-    <MudStack Spacing="3" Class="pa-4">
+    <MudStack Spacing="2" Class="pa-3">
         @for (int i = 0; i < 5; i++)
         {
-            <MudSkeleton Height="72px" Elevation="1" />
+            <MudSkeleton Height="72px" Elevation="0" Class="rounded-lg" />
         }
     </MudStack>
 }
 else
 {
-    <MudStack Spacing="3">
-    @if (!canTextExpand)
-    {
-        <MudAlert Severity="Severity.Warning" Class="mb-3">
-            <MudStack Row="true" Align="Align.Center" Spacing="2" Justify="@Justify.SpaceBetween" Style="width: 100%;">
-                <MudText Typo="Typo.body2">@localizationService.GetString("AccessibilityNotEnabledHint")</MudText>
-                <MudButton Color="Color.Warning" Variant="Variant.Filled" Size="Size.Small" OnClick="GoToPermission">
-                    @localizationService.GetString("Settings")
-                </MudButton>
-            </MudStack>
-        </MudAlert>
-    }
-
-    <SyncStatus />
-
-    <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="mb-2">
-        <MudStack Row="true" Align="Align.Center" Spacing="2">
-            <MudText Typo="Typo.subtitle1">@localizationService.GetString("YourMatches")</MudText>
-            @if (dict is not null && dict.Count > 0)
-            {
-                <MudChip Size="Size.Small" Color="Color.Default">@dict.Count</MudChip>
-            }
-        </MudStack>
-        <MudStack Row="true" Spacing="1" Align="Align.Center">
-            <MudIconButton @onclick="SyncNowAsync" Icon="@Icons.Material.Filled.Sync" Color="Color.Default" Variant="Variant.Text" Size="Size.Medium" Disabled="@_syncing" />
-            <MudMenu Icon="@Icons.Material.Filled.MoreVert" Color="Color.Default" Variant="Variant.Text" Size="Size.Medium">
-                <MudMenuItem Icon="@Icons.Material.Filled.Upload" OnClick="ImportAsync">@localizationService.GetString("Import")</MudMenuItem>
-                <MudMenuItem Icon="@Icons.Material.Filled.Download" OnClick="ExportAsync">@localizationService.GetString("Export")</MudMenuItem>
-            </MudMenu>
-        </MudStack>
-    </MudStack>
-
-    @if (dict is not null && dict.Count > 0)
-    {
-        <MudTextField @bind-Value="_searchQuery"
-                      Label="@localizationService.GetString("SearchMatches")"
-                      Variant="Variant.Outlined" Dense="true"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search"
-                      Class="mb-3 flex-grow-1" Immediate="true" DebounceInterval="300" />
-
-        @if (_filteredDict.Any())
+    <MudPaper Elevation="0" Class="page-container">
+        <MudStack Spacing="2">
+        @if (!canTextExpand)
         {
-            @foreach (var item in _filteredDict.Take(_filteredCount < lazyLoadIndex ? _filteredCount : lazyLoadIndex))
-            {
-                <MatchCard Item="item" OnEdit="() => EditItem(item)" OnDelete="async () => await RemoveItemAsync(item.Value)" @key="item.Key" />
-            }
-            @if (_filteredCount > lazyLoadIndex)
-            {
-                <div class="d-flex justify-center mt-3 mb-2">
-                    <MudButton @onclick="AdjustLazyLoad" Color="Color.Primary" Variant="Variant.Outlined">
-                        @localizationService.GetString("LoadMore")
+            <MudAlert Severity="Severity.Warning" Dense="true" Elevation="0" Class="alert-compact">
+                <MudStack Row="true" Align="Align.Center" Spacing="2" Justify="@Justify.SpaceBetween" Style="width: 100%;">
+                    <MudText Typo="Typo.body2">@localizationService.GetString("AccessibilityNotEnabledHint")</MudText>
+                    <MudButton Color="Color.Warning" Variant="Variant.Filled" Size="Size.Small" OnClick="GoToPermission">
+                        @localizationService.GetString("Settings")
                     </MudButton>
-                </div>
+                </MudStack>
+            </MudAlert>
+        }
+
+        <SyncStatus />
+
+        <MudStack Row="true" Justify="@Justify.SpaceBetween" Align="Align.Center" Class="px-2">
+            <MudStack Row="true" Align="Align.Center" Spacing="2">
+                <MudText Typo="Typo.subtitle1">@localizationService.GetString("YourMatches")</MudText>
+                @if (dict is not null && dict.Count > 0)
+                {
+                    <MudChip Size="Size.Small" Color="Color.Default">@dict.Count</MudChip>
+                }
+            </MudStack>
+            <MudStack Row="true" Spacing="1" Align="Align.Center">
+                <MudIconButton @onclick="SyncNowAsync" Icon="@Icons.Material.Filled.Sync" Color="Color.Default" Variant="Variant.Text" Size="Size.Medium" Disabled="@_syncing" />
+                <MudMenu Icon="@Icons.Material.Filled.MoreVert" Color="Color.Default" Variant="Variant.Text" Size="Size.Medium">
+                    <MudMenuItem Icon="@Icons.Material.Filled.Upload" OnClick="ImportAsync">@localizationService.GetString("Import")</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Download" OnClick="ExportAsync">@localizationService.GetString("Export")</MudMenuItem>
+                </MudMenu>
+            </MudStack>
+        </MudStack>
+
+        @if (dict is not null && dict.Count > 0)
+        {
+            <MudTextField @bind-Value="_searchQuery"
+                          Label="@localizationService.GetString("SearchMatches")"
+                          Variant="Variant.Outlined" Dense="true"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Class="px-2 flex-grow-1" Immediate="true" DebounceInterval="300" />
+
+            @if (_filteredDict.Any())
+            {
+                @foreach (var item in _filteredDict.Take(_filteredCount < lazyLoadIndex ? _filteredCount : lazyLoadIndex))
+                {
+                    <MatchCard Item="item" OnEdit="() => EditItem(item)" OnDelete="async () => await RemoveItemAsync(item.Value)" @key="item.Key" />
+                }
+                @if (_filteredCount > lazyLoadIndex)
+                {
+                    <div class="d-flex justify-center py-2">
+                        <MudButton @onclick="AdjustLazyLoad" Color="Color.Primary" Variant="Variant.Outlined">
+                            @localizationService.GetString("LoadMore")
+                        </MudButton>
+                    </div>
+                }
+            }
+            else
+            {
+                <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="pa-6">
+                    <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Default" />
+                    <MudText Typo="Typo.body2" Align="Align.Center" Style="opacity: 0.7;">@localizationService.GetString("NoMatchesFound")</MudText>
+                </MudStack>
             }
         }
         else
         {
-            <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="pa-4">
-                <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Default" />
-                <MudText Typo="Typo.body2" Align="Align.Center" Style="opacity: 0.7;">@localizationService.GetString("NoMatchesFound")</MudText>
+            <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="pa-6">
+                <MudIcon Icon="@Icons.Material.Filled.Inbox" Size="Size.Large" Color="Color.Default" />
+                <MudText Typo="Typo.body2" Align="Align.Center" Style="opacity: 0.7;">@localizationService.GetString("NoMatchesYet")</MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="GoToNewMatch">
+                    @localizationService.GetString("AddNewMatch")
+                </MudButton>
             </MudStack>
         }
-    }
-    else
-    {
-        <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="pa-8">
-            <MudIcon Icon="@Icons.Material.Filled.Inbox" Size="Size.Large" Color="Color.Default" />
-            <MudText Typo="Typo.body2" Align="Align.Center" Style="opacity: 0.7;">@localizationService.GetString("NoMatchesYet")</MudText>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="GoToNewMatch">
-                @localizationService.GetString("AddNewMatch")
-            </MudButton>
         </MudStack>
-    }
+    </MudPaper>
 
     <div class="fab-container">
         <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="GoToNewMatch" Size="Size.Large" />
     </div>
-    </MudStack>
 }
 
 <style>
@@ -119,6 +121,12 @@ else
         bottom: calc(72px + env(safe-area-inset-bottom));
         right: 16px;
         z-index: 10;
+    }
+    .page-container {
+        background-color: var(--mud-palette-surface);
+    }
+    .alert-compact {
+        background-color: rgba(var(--mud-palette-warning-rgb), 0.08);
     }
 </style>
 
